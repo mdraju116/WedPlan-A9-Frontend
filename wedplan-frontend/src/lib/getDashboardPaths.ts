@@ -3,7 +3,7 @@ import { getCurrentUser } from "./getCurrentUser";
 
 type UserRole = "Customer" | "Vendor" | "Admin";
 
-export async function dashboardPaths(allowedRoles: UserRole[]) {
+export async function getDashboardPaths(allowedRoles: UserRole[]) {
     const user = await getCurrentUser();
 
     if (!user) {

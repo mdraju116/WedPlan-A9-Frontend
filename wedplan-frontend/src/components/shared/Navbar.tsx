@@ -9,12 +9,24 @@ const navLinks = [
     { label: "Services", link: "/services" },
 ];
 
+const dashboardPaths = {
+    Customer: "/dashboard/customer",
+    Vendor: "/dashboard/vendor",
+    Admin: "/dashboard/admin",
+};
+
 const Navbar = () => {
     const { data: session, isPending } = useSession();
+
+    const role = session?.user?.role;
+    const dashboardLink = role
+        ? dashboardPaths[role as keyof typeof dashboardPaths]
+        : null;
 
     return (
         <nav className="w-full border-b bg-background">
             <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
+
                 <Link href="/" className="text-xl font-bold">
                     WedPlan
                 </Link>
@@ -30,9 +42,9 @@ const Navbar = () => {
                         </Link>
                     ))}
 
-                    {!isPending && session?.user && (
+                    {!isPending && dashboardLink && (
                         <Link
-                            href="/dashboard"
+                            href={dashboardLink}
                             className="text-sm font-medium text-muted-foreground hover:text-primary"
                         >
                             Dashboard
@@ -41,6 +53,7 @@ const Navbar = () => {
                 </div>
 
                 <UserMenu />
+
             </div>
         </nav>
     );

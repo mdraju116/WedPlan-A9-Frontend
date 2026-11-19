@@ -1,11 +1,29 @@
-import { dashboardPaths } from "@/lib/dashboardPaths";
+import {
+    SidebarProvider,
+    SidebarInset,
+    SidebarTrigger,
+} from "@/components/ui/sidebar";
 
-export default async function CustomerLayout({
+import CustomerSidebar from "@/components/dashboard/CustomerSidebar";
+
+export default function CustomerLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    await dashboardPaths(["Customer"]);
+    return (
+        <SidebarProvider>
+            <CustomerSidebar />
 
-    return <>{children}</>;
+            <SidebarInset>
+                <header className="flex h-14 items-center border-b px-4">
+                    <SidebarTrigger />
+                </header>
+
+                <main className="flex-1 p-6">
+                    {children}
+                </main>
+            </SidebarInset>
+        </SidebarProvider>
+    );
 }
