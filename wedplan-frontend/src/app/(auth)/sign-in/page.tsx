@@ -10,6 +10,8 @@ import { signIn } from "@/lib/auth-client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { SocialSignInButtons } from "@/components/auth/Social-signIn-buttons";
+import { toast } from "react-toastify";
 
 export default function SignInPage() {
     const router = useRouter();
@@ -49,6 +51,8 @@ export default function SignInPage() {
                 setError("Unable to identify your account role.");
             }
 
+            toast.success("SignIn successfull");
+
         } catch (error) {
             console.error("Sign in error:", error);
             setError("Something went wrong. Please try again.");
@@ -56,6 +60,9 @@ export default function SignInPage() {
             setLoading(false);
         }
     };
+
+    
+
 
     return (
         <main className="flex min-h-screen items-center justify-center p-6">
@@ -129,6 +136,7 @@ export default function SignInPage() {
                 >
                     {loading ? "Signing in..." : "Sign In"}
                 </Button>
+                <SocialSignInButtons/>
 
                 {/* Sign Up Link */}
                 <p className="text-center text-sm text-muted-foreground">
@@ -140,6 +148,7 @@ export default function SignInPage() {
                         Sign Up
                     </Link>
                 </p>
+
             </form>
         </main>
     );

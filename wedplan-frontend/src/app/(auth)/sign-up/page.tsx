@@ -9,6 +9,9 @@ import { useState, type FormEvent } from "react";
 import { signUp } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { SocialSignInButtons } from "@/components/auth/Social-signIn-buttons";
+import Link from "next/link";
+import { toast } from "react-toastify";
 
 export default function SignUpPage() {
     const [name, setName] = useState("");
@@ -75,7 +78,7 @@ export default function SignUpPage() {
                 imageUrl = await uploadImage(image);
             }
 
-            const { data, error } = await signUp.email({
+            const {  error } = await signUp.email({
                 name,
                 email,
                 password,
@@ -88,7 +91,8 @@ export default function SignUpPage() {
                 return;
             }
 
-            console.log("Registration successful:", data);
+            // console.log("Registration successful:", data);
+            toast.success("Sign-up Successful.")
 
             router.push("/sign-in");
 
@@ -102,6 +106,7 @@ export default function SignUpPage() {
 
         console.log("Form validation successful!");
     };
+
 
 
     return (
@@ -268,7 +273,22 @@ export default function SignUpPage() {
                 <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Please wait..." : "Create Account"}
                 </Button>
+
+                <SocialSignInButtons />
+
+                {/* Sign In Link */}
+                <p className="text-center text-sm text-muted-foreground">
+                    Already have an account?{" "}
+                    <Link
+                        href="/sign-in"
+                        className="font-medium text-primary hover:underline"
+                    >
+                        Sign In
+                    </Link>
+                </p>
             </form>
+
+
         </main>
     );
 }
