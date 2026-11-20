@@ -1,13 +1,31 @@
+"use client";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BriefcaseBusiness } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Trash2 } from "lucide-react";
+import { useState } from "react";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+import UpdateService, { type Service, } from "@/components/dashboard/UpdateService";
+import Image from "next/image";
 
 export default function MyServicesPage() {
 
+    const [deleteServiceId, setDeleteServiceId] = useState<string | null>(null);
 
-    const services = [
+    const [services, setServices] = useState<Service[]>([
+
         {
             id: "SRV-001",
             title: "Wedding Photography",
@@ -35,7 +53,30 @@ export default function MyServicesPage() {
             status: "Inactive",
             image: "https://i.ibb.co/placeholder3.jpg",
         },
-    ];
+    ]);
+
+
+
+    const handleDeleteService = () => {
+        if (!deleteServiceId) return;
+
+        setServices((prevServices) =>
+            prevServices.filter((service) => service.id !== deleteServiceId)
+        );
+
+        setDeleteServiceId(null);
+    };
+
+    const handleUpdateService = (updatedService: Service) => {
+        console.log("Updated service:", updatedService);
+
+        setServices((prevServices) =>
+            prevServices.map((service) =>
+                service.id === updatedService.id ? updatedService : service
+            )
+        );
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
@@ -60,9 +101,21 @@ export default function MyServicesPage() {
                             key={service.id}
                             className="overflow-hidden rounded-xl border bg-card"
                         >
-                            {/* Image Placeholder */}
-                            <div className="flex h-44 items-center justify-center bg-muted">
-                                <BriefcaseBusiness className="size-12 text-muted-foreground" />
+                            {/* Image */}
+                            <div className="relative h-48 w-full overflow-hidden rounded-lg bg-muted">
+                                {service.image ? (
+                                    <Image
+                                        src={service.image}
+                                        alt={service.title}
+                                        fill
+                                        sizes="(max-width: 768px) 100vw, 33vw"
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    <div className="flex h-full items-center justify-center">
+                                        <BriefcaseBusiness className="size-12 text-muted-foreground" />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Service Information */}
@@ -108,6 +161,26 @@ export default function MyServicesPage() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Actions */}
+                            <div className="flex items-center justify-center gap-2 border-t py-4">
+                                <UpdateService
+                                    service={service}
+                                    onUpdate={handleUpdateService}
+                                />
+
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-destructive hover:text-destructive"
+                                    onClick={() => setDeleteServiceId(service.id)}
+                                >
+                                    <Trash2 className="size-4" />
+                                    Delete
+                                </Button>
+                            </div>
+
+
                         </div>
                     ))}
                 </div>
@@ -120,6 +193,38 @@ export default function MyServicesPage() {
                     </p>
                 </div>
             )}
+
+
+            <AlertDialog
+                open={!!deleteServiceId}
+                onOpenChange={(open) => {
+                    if (!open) setDeleteServiceId(null);
+                }}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Service?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete this service?
+                            This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>
+                            Keep Service
+                        </AlertDialogCancel>
+
+                        <AlertDialogAction
+                            onClick={handleDeleteService}
+                            className="bg-destructive text-white hover:bg-destructive/90"
+                        >
+                            Yes, Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
         </div>
     );
 }

@@ -2,7 +2,6 @@ import {
     BriefcaseBusiness,
     CalendarDays,
     Clock,
-    CheckCircle2,
     DollarSign,
 } from "lucide-react";
 import {
