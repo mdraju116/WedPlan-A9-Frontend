@@ -1,30 +1,13 @@
 "use client";
 
 import { useState } from "react";
-
-import BookingList, {
-    type Booking,
-} from "@/components/dashboard/BookingList";
-
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from "@/components/ui/tabs";
-
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import BookingList, {type Booking,} from "@/components/dashboard/BookingList";
+import {Tabs,TabsContent,TabsList,TabsTrigger,} from "@/components/ui/tabs";
+import {AlertDialog,AlertDialogAction,AlertDialogCancel,AlertDialogContent,AlertDialogDescription,AlertDialogFooter,
+        AlertDialogHeader,AlertDialogTitle,} from "@/components/ui/alert-dialog";
 
 const MyBookingsPage = () => {
+
     const [bookings, setBookings] = useState<Booking[]>([
         {
             id: "BK-001",
@@ -64,9 +47,7 @@ const MyBookingsPage = () => {
         },
     ]);
 
-    const [cancelBookingId, setCancelBookingId] = useState<string | null>(
-        null
-    );
+    const [cancelBookingId, setCancelBookingId] = useState<string | null>(null);
 
     const handleCancelBooking = () => {
         if (!cancelBookingId) return;
@@ -122,7 +103,7 @@ const MyBookingsPage = () => {
                     <BookingList
                         bookings={bookings}
                         status="confirmed"
-                        onCancel={setCancelBookingId}
+                        onCancel={setCancelBookingId} 
                     />
                 </TabsContent>
 

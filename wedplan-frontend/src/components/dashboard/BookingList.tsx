@@ -21,11 +21,7 @@ type BookingListProps = {
     onCancel: (bookingId: string) => void;
 };
 
-const BookingList = ({
-    bookings,
-    status,
-    onCancel,
-}: BookingListProps) => {
+const BookingList = ({ bookings,status,onCancel,}: BookingListProps) => {
     const filteredBookings =
         status === "all"
             ? bookings
