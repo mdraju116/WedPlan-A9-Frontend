@@ -104,7 +104,7 @@ export default async function CustomerDashboard() {
                     </div>
 
                     <Link
-                        href="/dashboard/customer/mybookings"
+                        href="/dashboard/customer/my-bookings"
                         className="text-sm font-medium text-primary hover:underline"
                     >
                         View All

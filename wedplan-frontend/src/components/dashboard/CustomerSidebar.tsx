@@ -147,9 +147,9 @@ const CustomerSidebar = () => {
 
                             <SidebarMenuItem>
                                 <SidebarMenuButton
-                                    isActive={pathname.startsWith("/dashboard/customer/bookings")}
+                                    isActive={pathname.startsWith("/dashboard/customer/my-bookings")}
                                     tooltip="My Bookings"
-                                    render={<Link href="/dashboard/customer/bookings" />}
+                                    render={<Link href="/dashboard/customer/my-bookings" />}
                                 >
                                     <CalendarDays />
                                     <span>My Bookings</span>

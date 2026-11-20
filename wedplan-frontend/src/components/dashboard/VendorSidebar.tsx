@@ -139,9 +139,9 @@ const VendorSidebar = () => {
                         <SidebarMenu>
                             <SidebarMenuItem>
                                 <SidebarMenuButton
-                                    isActive={pathname === "/dashboard/vendor/services"}
+                                    isActive={pathname === "/dashboard/vendor/my-services"}
                                     tooltip="My Services"
-                                    render={<Link href="/dashboard/vendor/services" />}
+                                    render={<Link href="/dashboard/vendor/my-services" />}
                                 >
                                     <BriefcaseBusiness />
                                     <span>My Services</span>
@@ -161,9 +161,9 @@ const VendorSidebar = () => {
 
                             <SidebarMenuItem>
                                 <SidebarMenuButton
-                                    isActive={pathname === "/dashboard/vendor/bookings"}
+                                    isActive={pathname === "/dashboard/vendor/booking-requests"}
                                     tooltip="Booking Requests"
-                                    render={<Link href="/dashboard/vendor/bookings" />}
+                                    render={<Link href="/dashboard/vendor/booking-requests" />}
                                 >
                                     <ClipboardList />
                                     <span>Booking Requests</span>

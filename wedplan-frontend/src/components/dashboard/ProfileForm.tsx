@@ -7,12 +7,15 @@ import { Camera, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "react-toastify";
 
 type ProfileFormProps = {
     user: {
         name: string;
         email: string;
         image?: string | null;
+        businessName?: string;
     };
 };
 
@@ -20,6 +23,7 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
     const [name, setName] = useState(user.name);
     const [imagePreview, setImagePreview] = useState(user.image || "");
     const [image, setImage] = useState<File | null>(null);
+    const [businessName, setBusinessName] = useState(user.businessName || "");
 
     const handleImageChange = (file?: File) => {
         if (!file) return;
@@ -28,11 +32,53 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
         setImagePreview(URL.createObjectURL(file));
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        // Profile update will be connected to the backend later.
-        console.log({ name, image });
+        try {
+            let imageUrl = user.image || "";
+
+            // Upload a new profile image if selected
+            if (image) {
+                const formData = new FormData();
+                formData.append("image", image);
+
+                const response = await fetch(
+                    `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
+                    {
+                        method: "POST",
+                        body: formData,
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error("Image upload failed");
+                }
+
+                imageUrl = data.data.display_url;
+            }
+
+            const { error } = await authClient.updateUser({
+                name,
+                image: imageUrl || undefined,
+                ...(user.businessName !== undefined && { businessName }),
+            });
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            toast.success("Profile updated successfully!");
+        } catch (error) {
+            console.error(error);
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to update profile."
+            );
+        }
     };
 
     return (
@@ -90,6 +136,15 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Enter your full name"
                         required
+                    />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="businessName">Your Business Name</Label>
+                    <Input
+                        id="businessName"
+                        value={businessName}
+                        onChange={(e) => setBusinessName(e.target.value)}
+                        placeholder="Enter your business name"
                     />
                 </div>
 
