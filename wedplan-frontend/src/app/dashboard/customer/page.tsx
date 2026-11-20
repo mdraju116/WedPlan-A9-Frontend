@@ -1,12 +1,49 @@
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { CalendarDays, Clock, CheckCircle2, PartyPopper, } from "lucide-react";
-import { ArrowRight, Search, CalendarCheck } from "lucide-react";
+// import { ArrowRight, Search, CalendarCheck } from "lucide-react";
 import Link from "next/link";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 
+import { Badge } from "@/components/ui/badge";
 
 
 export default async function CustomerDashboard() {
     const user = await getCurrentUser();
+
+
+    const recentBookings = [
+        {
+            id: "BK-001",
+            service: "Wedding Photography",
+            vendor: "Dream Photography",
+            date: "Dec 15, 2026",
+            amount: 25000,
+            status: "Confirmed",
+        },
+        {
+            id: "BK-002",
+            service: "Wedding Decoration",
+            vendor: "Royal Decorators",
+            date: "Dec 20, 2026",
+            amount: 35000,
+            status: "Pending",
+        },
+        {
+            id: "BK-003",
+            service: "Catering Service",
+            vendor: "Food Paradise",
+            date: "Jan 05, 2027",
+            amount: 50000,
+            status: "Completed",
+        },
+    ];
 
     return (
         <div>
@@ -54,50 +91,66 @@ export default async function CustomerDashboard() {
             </div>
 
 
-            {/*  */}
+
+            {/* Recent Bookings */}
+
             <div className="mt-10">
-                <h2 className="text-lg font-semibold">Quick Actions</h2>
-
-                <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <Link
-                        href="/services"
-                        className="group flex items-center justify-between rounded-xl border p-5 transition-colors hover:bg-muted/50"
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="rounded-lg bg-primary/10 p-3 text-primary">
-                                <Search className="size-6" />
-                            </div>
-
-                            <div>
-                                <h3 className="font-semibold">Browse Services</h3>
-                                <p className="text-sm text-muted-foreground">
-                                    Find services for your wedding
-                                </p>
-                            </div>
-                        </div>
-
-                        <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
-                    </Link>
+                <div className="mb-4 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-lg font-semibold">Recent Bookings</h2>
+                        <p className="text-sm text-muted-foreground">
+                            Keep track of your recent wedding service bookings.
+                        </p>
+                    </div>
 
                     <Link
                         href="/dashboard/customer/mybookings"
-                        className="group flex items-center justify-between rounded-xl border p-5 transition-colors hover:bg-muted/50"
+                        className="text-sm font-medium text-primary hover:underline"
                     >
-                        <div className="flex items-center gap-4">
-                            <div className="rounded-lg bg-primary/10 p-3 text-primary">
-                                <CalendarCheck className="size-6" />
-                            </div>
-
-                            <div>
-                                <h3 className="font-semibold">My Bookings</h3>
-                                <p className="text-sm text-muted-foreground">
-                                    Track your wedding service bookings
-                                </p>
-                            </div>
-                        </div>
-
-                        <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
+                        View All
                     </Link>
+                </div>
+
+                <div className="rounded-xl border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Service</TableHead>
+                                <TableHead>Vendor</TableHead>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Amount</TableHead>
+                                <TableHead>Status</TableHead>
+                            </TableRow>
+                        </TableHeader>
+
+                        <TableBody>
+                            {recentBookings.map((booking) => (
+                                <TableRow key={booking.id}>
+                                    <TableCell className="font-medium">
+                                        {booking.service}
+                                    </TableCell>
+                                    <TableCell>{booking.vendor}</TableCell>
+                                    <TableCell>{booking.date}</TableCell>
+                                    <TableCell>
+                                        ৳{booking.amount.toLocaleString("en-BD")}
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge
+                                            variant={
+                                                booking.status === "Confirmed"
+                                                    ? "default"
+                                                    : booking.status === "Completed"
+                                                        ? "secondary"
+                                                        : "outline"
+                                            }
+                                        >
+                                            {booking.status}
+                                        </Badge>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </div>
             </div>
 
