@@ -3,7 +3,6 @@
 import {
     Sidebar,
     SidebarContent,
-    SidebarFooter,
     SidebarHeader,
     SidebarRail,
     SidebarMenu,
@@ -30,6 +29,8 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "react-toastify";
+
 
 const VendorSidebar = () => {
     const pathname = usePathname();
@@ -37,6 +38,19 @@ const VendorSidebar = () => {
 
     const { data: session } = useSession();
     const user = session?.user;
+
+    const handleSignOut = async () => {
+        const { error } = await signOut();
+
+        if (error) {
+            toast.error("Failed to sign out. Please try again.");
+            return;
+        }
+
+        toast.success("Signed out successfully!");
+        router.push("/sign-in");
+        router.refresh();
+    };
 
     return (
         <Sidebar collapsible="icon">
@@ -176,7 +190,10 @@ const VendorSidebar = () => {
                             </SidebarMenuItem>
 
                             <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Logout">
+                                <SidebarMenuButton
+                                    tooltip="Logout"
+                                    onClick={handleSignOut}
+                                >
                                     <LogOut />
                                     <span>Logout</span>
                                 </SidebarMenuButton>

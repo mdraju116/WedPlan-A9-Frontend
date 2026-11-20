@@ -3,7 +3,6 @@
 import {
     Sidebar,
     SidebarContent,
-    SidebarFooter,
     SidebarHeader,
     SidebarRail,
     SidebarMenu,
@@ -40,7 +39,18 @@ const CustomerSidebar = () => {
     const { data: session } = useSession();
     const user = session?.user;
 
-    // We'll add the sign-out handler here.
+    const handleSignOut = async () => {
+        const { error } = await signOut();
+
+        if (error) {
+            toast.error("Failed to sign out. Please try again.");
+            return;
+        }
+
+        toast.success("Signed out successfully!");
+        router.push("/sign-in");
+        router.refresh();
+    };
 
     return (
         <Sidebar collapsible="icon">
@@ -62,7 +72,7 @@ const CustomerSidebar = () => {
                             tooltip="Account"
                             className="h-auto py-2"
                         >
-                           <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:rounded-full">
+                            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:rounded-full">
                                 {user?.image ? (
                                     <Image
                                         src={user.image}
@@ -87,7 +97,7 @@ const CustomerSidebar = () => {
                                     {user?.email || ""}
                                 </span>
 
-                                <Badge variant="secondary"  className="h-4 w-fit rounded border border-green-200 bg-green-100 px-1.5 text-[10px] font-medium text-green-700 hover:bg-green-100"   >
+                                <Badge variant="secondary" className="h-4 w-fit rounded border border-green-200 bg-green-100 px-1.5 text-[10px] font-medium text-green-700 hover:bg-green-100"   >
                                     Customer
                                 </Badge>
                             </div>
@@ -154,7 +164,7 @@ const CustomerSidebar = () => {
 
                 <SidebarGroup>
                     <SidebarGroupLabel>Account</SidebarGroupLabel>
-                    <SidebarGroupContent>     
+                    <SidebarGroupContent>
                         <SidebarMenu>
                             <SidebarMenuItem>
                                 <SidebarMenuButton
@@ -168,7 +178,10 @@ const CustomerSidebar = () => {
                             </SidebarMenuItem>
 
                             <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Logout">
+                                <SidebarMenuButton
+                                    tooltip="Logout"
+                                    onClick={handleSignOut}
+                                >
                                     <LogOut />
                                     <span>Logout</span>
                                 </SidebarMenuButton>
