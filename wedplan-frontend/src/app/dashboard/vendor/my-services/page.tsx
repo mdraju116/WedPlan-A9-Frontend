@@ -20,41 +20,59 @@ import {
 import UpdateService, { type Service, } from "@/components/dashboard/UpdateService";
 import Image from "next/image";
 
+
 export default function MyServicesPage() {
 
     const [deleteServiceId, setDeleteServiceId] = useState<string | null>(null);
 
-    const [services, setServices] = useState<Service[]>([
+    const [services, setServices] = useState<Service[]>(() => {
+        const defaultServices: Service[] = [
+            {
+                id: "SRV-001",
+                title: "Wedding Photography",
+                category: "Photography",
+                price: 25000,
+                bookings: 12,
+                status: "Active",
+                image: "https://i.ibb.co/placeholder1.jpg",
+            },
+            {
+                id: "SRV-002",
+                title: "Wedding Decoration",
+                category: "Decoration",
+                price: 35000,
+                bookings: 8,
+                status: "Active",
+                image: "https://i.ibb.co/placeholder2.jpg",
+            },
+            {
+                id: "SRV-003",
+                title: "Wedding Catering",
+                category: "Catering",
+                price: 50000,
+                bookings: 4,
+                status: "Inactive",
+                image: "https://i.ibb.co/placeholder3.jpg",
+            },
+        ];
 
-        {
-            id: "SRV-001",
-            title: "Wedding Photography",
-            category: "Photography",
-            price: 25000,
-            bookings: 12,
-            status: "Active",
-            image: "https://i.ibb.co/placeholder1.jpg",
-        },
-        {
-            id: "SRV-002",
-            title: "Wedding Decoration",
-            category: "Decoration",
-            price: 35000,
-            bookings: 8,
-            status: "Active",
-            image: "https://i.ibb.co/placeholder2.jpg",
-        },
-        {
-            id: "SRV-003",
-            title: "Wedding Catering",
-            category: "Catering",
-            price: 50000,
-            bookings: 4,
-            status: "Inactive",
-            image: "https://i.ibb.co/placeholder3.jpg",
-        },
-    ]);
+        if (typeof window === "undefined") {
+            return defaultServices;
+        }
 
+        const savedServices: Service[] = JSON.parse(
+            localStorage.getItem("wedplan-services") || "[]"
+        );
+
+        return [
+            ...defaultServices,
+            ...savedServices.filter(
+                (saved) => !defaultServices.some(
+                    (service) => service.id === saved.id
+                )
+            ),
+        ];
+    });
 
 
     const handleDeleteService = () => {
