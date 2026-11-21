@@ -1,7 +1,12 @@
+
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ImagePlus, Save } from "lucide-react";
+import Image from "next/image";
+import { toast } from "react-toastify";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,10 +18,11 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import Image from "next/image";
 
+import { getClientToken } from "@/lib/access-jwt-at-client-component";
 
 const AddServiceForm = () => {
+    const router = useRouter();
 
     const [form, setForm] = useState({
         title: "",
@@ -63,7 +69,7 @@ const AddServiceForm = () => {
 
         const data = await response.json();
 
-        if (!data.success) {
+        if (!response.ok || !data.success) {
             throw new Error("Image upload failed");
         }
 
@@ -74,37 +80,64 @@ const AddServiceForm = () => {
         e.preventDefault();
 
         if (!imageFile) {
+            toast.error("Please select a service image");
+            return;
+        }
+
+        if (!form.category) {
+            toast.error("Please select a service category");
             return;
         }
 
         setSaving(true);
 
         try {
+            const token = await getClientToken();
+
+            if (!token) {
+                throw new Error("Authentication required");
+            }
+
+            // Upload service image
             const imageUrl = await uploadImage(imageFile);
 
-            const newService = {
-                id: crypto.randomUUID(),
-                ...form,
-                price: Number(form.price),
-                image: imageUrl,
-                status: "Active" as const,
-                bookings: 0,
-            };
-
-            const existingServices = JSON.parse(
-                localStorage.getItem("wedplan-services") || "[]"
+            // Create service
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/services`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        ...form,
+                        price: Number(form.price),
+                        image: imageUrl,
+                    }),
+                }
             );
 
-            localStorage.setItem(
-                "wedplan-services",
-                JSON.stringify([...existingServices, newService])
-            );
+            const result = await response.json();
 
-            alert("Service added successfully!");
+            if (!response.ok) {
+                throw new Error(
+                    result.message || "Failed to create service"
+                );
+            }
 
-            console.log("New service:", newService);
+            toast.success("Service added successfully!");
+
+            router.push("/dashboard/vendor/my-services");
+            router.refresh();
         } catch (error) {
             console.error("Service creation failed:", error);
+
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to add service"
+            );
         } finally {
             setSaving(false);
         }
@@ -180,6 +213,7 @@ const AddServiceForm = () => {
 
             <div className="space-y-2">
                 <Label htmlFor="image">Service Image</Label>
+
                 <div className="flex items-center gap-4">
                     <div className="relative flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
                         {imagePreview ? (
@@ -204,6 +238,7 @@ const AddServiceForm = () => {
                         required
                     />
                 </div>
+
                 <p className="text-xs text-muted-foreground">
                     Select an image from your device.
                 </p>
@@ -212,7 +247,7 @@ const AddServiceForm = () => {
             <div className="flex justify-end border-t pt-5">
                 <Button type="submit" disabled={saving}>
                     <Save className="size-4" />
-                    {saving ? "Uploading..." : "Add Service"}
+                    {saving ? "Saving..." : "Add Service"}
                 </Button>
             </div>
         </form>

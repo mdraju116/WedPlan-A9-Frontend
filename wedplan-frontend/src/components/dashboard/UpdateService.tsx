@@ -2,7 +2,9 @@
 "use client";
 
 import * as React from "react";
-import { Pencil, Save, X } from "lucide-react";
+import { Pencil, Save, X, ImagePlus } from "lucide-react";
+import Image from "next/image";
+import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +15,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -23,9 +24,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import Image from "next/image";
-import { ImagePlus } from "lucide-react";
 
+import { getClientToken } from "@/lib/access-jwt-at-client-component";
 
 export type Service = {
     id: string;
@@ -42,8 +42,6 @@ type UpdateServiceProps = {
     onUpdate: (updatedService: Service) => void;
 };
 
-
-
 const UpdateService = ({ service, onUpdate }: UpdateServiceProps) => {
     const [open, setOpen] = React.useState(false);
     const [saving, setSaving] = React.useState(false);
@@ -54,8 +52,6 @@ const UpdateService = ({ service, onUpdate }: UpdateServiceProps) => {
         title: service.title,
         category: service.category,
         price: service.price,
-        status: service.status,
-        image: service.image,
     });
 
     const uploadImage = async (file: File) => {
@@ -72,7 +68,7 @@ const UpdateService = ({ service, onUpdate }: UpdateServiceProps) => {
 
         const data = await response.json();
 
-        if (!data.success) {
+        if (!response.ok || !data.success) {
             throw new Error("Image upload failed");
         }
 
@@ -80,30 +76,65 @@ const UpdateService = ({ service, onUpdate }: UpdateServiceProps) => {
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    setSaving(true);
+        setSaving(true);
 
-    try {
-        const imageUrl = imageFile
-            ? await uploadImage(imageFile)
-            : service.image;
+        try {
+            const token = await getClientToken();
 
-        onUpdate({
-            ...service,
-            ...form,
-            image: imageUrl,
-        });
+            if (!token) {
+                throw new Error("Authentication required");
+            }
 
-        setImageFile(null);
-        setOpen(false);
-    } catch (error) {
-        console.error("Service update failed:", error);
-        alert(error instanceof Error ? error.message : "Something went wrong");
-    } finally {
-        setSaving(false);
-    }
-};
+            const imageUrl = imageFile
+                ? await uploadImage(imageFile)
+                : service.image;
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/services/${service.id}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        ...form,
+                        image: imageUrl,
+                    }),
+                }
+            );
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || "Failed to update service");
+            }
+
+            onUpdate({
+                ...service,
+                ...form,
+                image: imageUrl,
+            });
+
+            setImageFile(null);
+            setImagePreview(imageUrl);
+            setOpen(false);
+
+            toast.success("Service updated successfully!");
+        } catch (error) {
+            console.error("Service update failed:", error);
+
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Something went wrong"
+            );
+        } finally {
+            setSaving(false);
+        }
+    };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -123,9 +154,10 @@ const UpdateService = ({ service, onUpdate }: UpdateServiceProps) => {
                         title: service.title,
                         category: service.category,
                         price: service.price,
-                        status: service.status,
-                        image: service.image
                     });
+
+                    setImageFile(null);
+                    setImagePreview(service.image);
                 }
 
                 setOpen(nextOpen);
@@ -144,15 +176,18 @@ const UpdateService = ({ service, onUpdate }: UpdateServiceProps) => {
                     </DialogDescription>
                 </DialogHeader>
 
-
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="title">Service Name</Label>
                         <Input
                             id="title"
+                            required
                             value={form.title}
                             onChange={(e) =>
-                                setForm((prev) => ({ ...prev, title: e.target.value }))
+                                setForm((prev) => ({
+                                    ...prev,
+                                    title: e.target.value,
+                                }))
                             }
                         />
                     </div>
@@ -162,7 +197,10 @@ const UpdateService = ({ service, onUpdate }: UpdateServiceProps) => {
                         <Select
                             value={form.category}
                             onValueChange={(value) =>
-                                setForm((prev) => ({ ...prev, category: value ?? "" }))
+                                setForm((prev) => ({
+                                    ...prev,
+                                    category: value ?? "",
+                                }))
                             }
                         >
                             <SelectTrigger id="category" className="w-full">
@@ -184,6 +222,7 @@ const UpdateService = ({ service, onUpdate }: UpdateServiceProps) => {
                             id="price"
                             type="number"
                             min="0"
+                            required
                             value={form.price}
                             onChange={(e) =>
                                 setForm((prev) => ({
@@ -229,39 +268,20 @@ const UpdateService = ({ service, onUpdate }: UpdateServiceProps) => {
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="status">Status</Label>
-                        <Select
-                            value={form.status}
-                            onValueChange={(value) =>
-                                setForm((prev) => ({
-                                    ...prev,
-                                    status: value as "Active" | "Inactive",
-                                }))
-                            }
-                        >
-                            <SelectTrigger id="status" className="w-full">
-                                <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Active">Active</SelectItem>
-                                <SelectItem value="Inactive">Inactive</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
                     <div className="flex justify-end gap-2 pt-2">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={() => setOpen(false)}
+                            disabled={saving}
                         >
                             <X className="size-4" />
                             Cancel
                         </Button>
+
                         <Button type="submit" disabled={saving}>
                             <Save className="size-4" />
-                            {saving ? "Uploading..." : "Save Changes"}
+                            {saving ? "Saving..." : "Save Changes"}
                         </Button>
                     </div>
                 </form>

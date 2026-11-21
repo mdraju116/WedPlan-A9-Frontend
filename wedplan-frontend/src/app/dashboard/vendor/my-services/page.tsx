@@ -1,11 +1,18 @@
+
 "use client";
+
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import {
+    Plus,
+    BriefcaseBusiness,
+    Trash2,
+} from "lucide-react";
+import { toast } from "react-toastify";
+
 import { Button } from "@/components/ui/button";
-import { BriefcaseBusiness } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Trash2 } from "lucide-react";
-import { useState } from "react";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -17,77 +24,124 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-import UpdateService, { type Service, } from "@/components/dashboard/UpdateService";
-import Image from "next/image";
+import UpdateService, {
+    type Service,
+} from "@/components/dashboard/UpdateService";
 
+import { getClientToken } from "@/lib/access-jwt-at-client-component";
 
 export default function MyServicesPage() {
-
+    const [services, setServices] = useState<Service[]>([]);
+    const [loading, setLoading] = useState(true);
     const [deleteServiceId, setDeleteServiceId] = useState<string | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
-    const [services, setServices] = useState<Service[]>(() => {
-        const defaultServices: Service[] = [
-            {
-                id: "SRV-001",
-                title: "Wedding Photography",
-                category: "Photography",
-                price: 25000,
-                bookings: 12,
-                status: "Active",
-                image: "https://i.ibb.co/placeholder1.jpg",
-            },
-            {
-                id: "SRV-002",
-                title: "Wedding Decoration",
-                category: "Decoration",
-                price: 35000,
-                bookings: 8,
-                status: "Active",
-                image: "https://i.ibb.co/placeholder2.jpg",
-            },
-            {
-                id: "SRV-003",
-                title: "Wedding Catering",
-                category: "Catering",
-                price: 50000,
-                bookings: 4,
-                status: "Inactive",
-                image: "https://i.ibb.co/placeholder3.jpg",
-            },
-        ];
+    // Fetch Vendor Services
+    useEffect(() => {
+        const fetchMyServices = async () => {
+            try {
+                const token = await getClientToken();
 
-        if (typeof window === "undefined") {
-            return defaultServices;
-        }
+                if (!token) return;
 
-        const savedServices: Service[] = JSON.parse(
-            localStorage.getItem("wedplan-services") || "[]"
-        );
+                const response = await fetch(
+                    `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/services/my-services`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
 
-        return [
-            ...defaultServices,
-            ...savedServices.filter(
-                (saved) => !defaultServices.some(
-                    (service) => service.id === saved.id
-                )
-            ),
-        ];
-    });
+                if (!response.ok) {
+                    throw new Error("Failed to fetch services");
+                }
 
+                const result = await response.json();
 
-    const handleDeleteService = () => {
+                const formattedServices: Service[] = result.data.map(
+                    (service: {
+                        _id: string;
+                        title: string;
+                        category: string;
+                        price: number;
+                        bookings: number;
+                        status: "Active" | "Inactive";
+                        image: string;
+                    }) => ({
+                        id: service._id,
+                        title: service.title,
+                        category: service.category,
+                        price: service.price,
+                        bookings: service.bookings,
+                        status: service.status,
+                        image: service.image,
+                    })
+                );
+
+                setServices(formattedServices);
+            } catch (error) {
+                console.error("Error fetching vendor services:", error);
+                toast.error("Failed to load services");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMyServices();
+    }, []);
+
+    const handleDeleteService = async () => {
         if (!deleteServiceId) return;
 
-        setServices((prevServices) =>
-            prevServices.filter((service) => service.id !== deleteServiceId)
-        );
+        setDeleting(true);
 
-        setDeleteServiceId(null);
+        try {
+            const token = await getClientToken();
+
+            if (!token) {
+                throw new Error("Authentication required");
+            }
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/services/${deleteServiceId}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || "Failed to delete service");
+            }
+
+            setServices((prevServices) =>
+                prevServices.filter(
+                    (service) => service.id !== deleteServiceId
+                )
+            );
+
+            setDeleteServiceId(null);
+            toast.success("Service deleted successfully!");
+        } catch (error) {
+            console.error("Service deletion failed:", error);
+
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to delete service"
+            );
+        } finally {
+            setDeleting(false);
+        }
     };
 
+    // Update Service (Local State - API Integration Next)
     const handleUpdateService = (updatedService: Service) => {
-        console.log("Updated service:", updatedService);
-
         setServices((prevServices) =>
             prevServices.map((service) =>
                 service.id === updatedService.id ? updatedService : service
@@ -97,6 +151,7 @@ export default function MyServicesPage() {
 
     return (
         <div className="space-y-6">
+            {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold">My Services</h1>
@@ -111,8 +166,12 @@ export default function MyServicesPage() {
                 </Button>
             </div>
 
-            {/* Service listing will go here */}
-            {services.length > 0 ? (
+            {/* Service Listing */}
+            {loading ? (
+                <div className="py-16 text-center text-muted-foreground">
+                    Loading services...
+                </div>
+            ) : services.length > 0 ? (
                 <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                     {services.map((service) => (
                         <div
@@ -197,8 +256,6 @@ export default function MyServicesPage() {
                                     Delete
                                 </Button>
                             </div>
-
-
                         </div>
                     ))}
                 </div>
@@ -212,7 +269,7 @@ export default function MyServicesPage() {
                 </div>
             )}
 
-
+            {/* Delete Confirmation */}
             <AlertDialog
                 open={!!deleteServiceId}
                 onOpenChange={(open) => {
@@ -235,14 +292,13 @@ export default function MyServicesPage() {
 
                         <AlertDialogAction
                             onClick={handleDeleteService}
-                            className="bg-destructive text-white hover:bg-destructive/90"
+                            disabled={deleting}
                         >
-                            Yes, Delete
+                            {deleting ? "Deleting..." : "Delete"}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-
         </div>
     );
 }

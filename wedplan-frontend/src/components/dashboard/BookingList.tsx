@@ -105,6 +105,8 @@ const BookingList = ({ bookings, status, onCancel, }: BookingListProps) => {
                             {/* Actions */}
                             <div className="flex min-w-20 items-center gap-2">
                                 <Button
+
+                                
                                     variant="outline"
                                     size="icon"
                                     title="View Details"
