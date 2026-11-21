@@ -15,7 +15,7 @@ export default function GetToken() {
     };
 
     return (
-        <button onClick={handleGetToken}>
+        <button onClick={handleGetToken} className="border  p-2">
             Get JWT
         </button>
     );
