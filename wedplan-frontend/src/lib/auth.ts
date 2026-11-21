@@ -13,7 +13,7 @@ export const auth = betterAuth({
     user: {
         additionalFields: {   // extra fields that are not in sign up form
             role: {
-                type: ["Customer", "Vendor", "Admin"],
+                type: ["Customer", "Vendor","Admin" ],
                 required: false,
                 defaultValue: "Customer",
                 input: true,

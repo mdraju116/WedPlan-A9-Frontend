@@ -21,13 +21,13 @@ type BookingListProps = {
     onCancel: (bookingId: string) => void;
 };
 
-const BookingList = ({ bookings,status,onCancel,}: BookingListProps) => {
+const BookingList = ({ bookings, status, onCancel, }: BookingListProps) => {
     const filteredBookings =
         status === "all"
             ? bookings
             : bookings.filter(
-                  (booking) => booking.status.toLowerCase() === status
-              );
+                (booking) => booking.status.toLowerCase() === status
+            );
 
     if (filteredBookings.length === 0) {
         return (
@@ -72,9 +72,12 @@ const BookingList = ({ bookings,status,onCancel,}: BookingListProps) => {
                                 <p className="text-sm">{booking.date}</p>
                             </div>
 
-                            <div className="min-w-25">
-                                <p className="text-sm font-medium">
-                                    {booking.id}
+                            <div className="min-w-25 max-w-25">
+                                <p
+                                    className="truncate text-sm font-medium"
+                                    title={booking.id}
+                                >
+                                    {booking.id.slice(0, 8)}...
                                 </p>
                             </div>
 
@@ -91,8 +94,8 @@ const BookingList = ({ bookings,status,onCancel,}: BookingListProps) => {
                                             ? "default"
                                             : booking.status === "Completed" ||
                                                 booking.status === "Cancelled"
-                                              ? "secondary"
-                                              : "outline"
+                                                ? "secondary"
+                                                : "outline"
                                     }
                                 >
                                     {booking.status}

@@ -1,49 +1,48 @@
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { CalendarDays, Clock, CheckCircle2, PartyPopper, } from "lucide-react";
-// import { ArrowRight, Search, CalendarCheck } from "lucide-react";
 import Link from "next/link";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { getServerToken } from "@/lib/access-jwt-at-server-component";
 
+type RecentBooking = {
+    _id: string;
+    serviceTitle: string;
+    vendorName: string;
+    eventDate: string;
+    amount: number;
+    status: "Pending" | "Confirmed" | "Rejected" | "Cancelled" | "Completed";
+};
 
 export default async function CustomerDashboard() {
     const user = await getCurrentUser();
+    const token = await getServerToken();
 
+    const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/dashboard/customer`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            cache: "no-store",
+        }
+    );
 
-    const recentBookings = [
-        {
-            id: "BK-001",
-            service: "Wedding Photography",
-            vendor: "Dream Photography",
-            date: "Dec 15, 2026",
-            amount: 25000,
-            status: "Confirmed",
-        },
-        {
-            id: "BK-002",
-            service: "Wedding Decoration",
-            vendor: "Royal Decorators",
-            date: "Dec 20, 2026",
-            amount: 35000,
-            status: "Pending",
-        },
-        {
-            id: "BK-003",
-            service: "Catering Service",
-            vendor: "Food Paradise",
-            date: "Jan 05, 2027",
-            amount: 50000,
-            status: "Completed",
-        },
-    ];
+    if (!response.ok) {
+        throw new Error("Failed to fetch customer dashboard");
+    }
+
+    const result = await response.json();
+
+    const { stats, recentBookings } = result.data as {
+        stats: {
+            totalBookings: number;
+            pendingBookings: number;
+            confirmedBookings: number;
+            completedBookings: number;
+        };
+        recentBookings: RecentBooking[];
+    };
 
     return (
         <div>
@@ -62,7 +61,7 @@ export default async function CustomerDashboard() {
                         <p className="text-sm text-muted-foreground">Total Bookings</p>
                         <CalendarDays className="size-5 text-primary" />
                     </div>
-                    <h2 className="mt-3 text-2xl font-bold">12</h2>
+                    <h2 className="mt-3 text-2xl font-bold">{stats.totalBookings}</h2>
                 </div>
 
                 <div className="rounded-xl border p-5">
@@ -70,7 +69,7 @@ export default async function CustomerDashboard() {
                         <p className="text-sm text-muted-foreground">Pending Bookings</p>
                         <Clock className="size-5 text-yellow-600" />
                     </div>
-                    <h2 className="mt-3 text-2xl font-bold">4</h2>
+                    <h2 className="mt-3 text-2xl font-bold">{stats.pendingBookings}</h2>
                 </div>
 
                 <div className="rounded-xl border p-5">
@@ -78,7 +77,7 @@ export default async function CustomerDashboard() {
                         <p className="text-sm text-muted-foreground">Confirmed Bookings</p>
                         <CheckCircle2 className="size-5 text-green-600" />
                     </div>
-                    <h2 className="mt-3 text-2xl font-bold">6</h2>
+                    <h2 className="mt-3 text-2xl font-bold">{stats.confirmedBookings}</h2>
                 </div>
 
                 <div className="rounded-xl border p-5">
@@ -86,7 +85,7 @@ export default async function CustomerDashboard() {
                         <p className="text-sm text-muted-foreground">Completed Bookings</p>
                         <PartyPopper className="size-5 text-purple-600" />
                     </div>
-                    <h2 className="mt-3 text-2xl font-bold">2</h2>
+                    <h2 className="mt-3 text-2xl font-bold">{stats.completedBookings}</h2>
                 </div>
             </div>
 
@@ -125,12 +124,18 @@ export default async function CustomerDashboard() {
 
                         <TableBody>
                             {recentBookings.map((booking) => (
-                                <TableRow key={booking.id}>
+                                <TableRow key={booking._id}>
                                     <TableCell className="font-medium">
-                                        {booking.service}
+                                        {booking.serviceTitle}
                                     </TableCell>
-                                    <TableCell>{booking.vendor}</TableCell>
-                                    <TableCell>{booking.date}</TableCell>
+                                    <TableCell>{booking.vendorName}</TableCell>
+                                    <TableCell>
+                                        {new Date(booking.eventDate).toLocaleDateString("en-BD", {
+                                            day: "numeric",
+                                            month: "short",
+                                            year: "numeric",
+                                        })}
+                                    </TableCell>
                                     <TableCell>
                                         ৳{booking.amount.toLocaleString("en-BD")}
                                     </TableCell>
