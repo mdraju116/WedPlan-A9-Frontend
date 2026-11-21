@@ -152,12 +152,24 @@ const AdminSidebar = () => {
 
                             <SidebarMenuItem>
                                 <SidebarMenuButton
-                                    isActive={pathname.startsWith("/dashboard/admin/services")}
+                                    isActive={pathname.startsWith("/dashboard/admin/manage-services")}
                                     tooltip="Manage Services"
-                                    render={<Link href="/dashboard/admin/services" />}
+                                    render={<Link href="/dashboard/admin/manage-services" />}
                                 >
                                     <BriefcaseBusiness />
                                     <span>Manage Services</span>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+
+
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    isActive={pathname.startsWith("/dashboard/admin/manage-bookings")}
+                                    tooltip="Manage Bookings"
+                                    render={<Link href="/dashboard/admin/manage-bookings" />}
+                                >
+                                    <BriefcaseBusiness />
+                                    <span>Manage Bookings</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
 
