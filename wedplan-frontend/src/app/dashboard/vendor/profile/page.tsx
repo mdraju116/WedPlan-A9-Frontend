@@ -1,10 +1,44 @@
 
-import { getCurrentUser } from "@/lib/getCurrentUser";
+import { getServerToken } from "@/lib/access-jwt-at-server-component";
 import ProfileForm from "@/components/dashboard/ProfileForm";
 import GetToken from "@/components/auth/GetToken";
 
+type VendorProfile = {
+    name: string;
+    email: string;
+    image?: string | null;
+    businessName?: string;
+};
+
+async function getVendorProfile(): Promise<VendorProfile | null> {
+    try {
+        const token = await getServerToken();
+
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/users/profile`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                cache: "no-store",
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch vendor profile.");
+        }
+
+        const result = await response.json();
+
+        return result.data;
+    } catch (error) {
+        console.error("Vendor profile fetch error:", error);
+        return null;
+    }
+}
+
 export default async function VendorProfilePage() {
-    const user = await getCurrentUser();
+    const user = await getVendorProfile();
 
     if (!user) return null;
 
@@ -28,7 +62,6 @@ export default async function VendorProfilePage() {
                 />
             </div>
 
-            {/* to get token for postman, click the btn, and  copy the token from console */}
             <GetToken />
         </div>
     );

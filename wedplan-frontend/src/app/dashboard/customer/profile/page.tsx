@@ -1,14 +1,45 @@
-import { getCurrentUser } from "@/lib/getCurrentUser";
+
+import { getServerToken } from "@/lib/access-jwt-at-server-component";
 import ProfileForm from "@/components/dashboard/ProfileForm";
 import GetToken from "@/components/auth/GetToken";
 
+type UserProfile = {
+    name: string;
+    email: string;
+    image?: string | null;
+};
 
+async function getUserProfile(): Promise<UserProfile | null> {
+    try {
+        const token = await getServerToken();
+
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/users/profile`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                cache: "no-store",
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch user profile.");
+        }
+
+        const result = await response.json();
+
+        return result.data;
+    } catch (error) {
+        console.error("Profile fetch error:", error);
+        return null;
+    }
+}
 
 export default async function CustomerProfilePage() {
-    const user = await getCurrentUser();
+    const user = await getUserProfile();
 
     if (!user) return null;
-
 
     return (
         <div className="space-y-6">
@@ -20,18 +51,10 @@ export default async function CustomerProfilePage() {
             </div>
 
             <div className="max-w-3xl rounded-xl border p-6">
-                <ProfileForm
-                    user={{
-                        name: user.name,
-                        email: user.email,
-                        image: user.image,
-                    }}
-                />
+                <ProfileForm user={user} />
             </div>
 
-            {/* to get token for postman, click the btn, and  copy the token from console */}
             <GetToken />
-
         </div>
     );
 }

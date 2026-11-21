@@ -1,14 +1,45 @@
-import { getCurrentUser } from "@/lib/getCurrentUser";
+
+import { getServerToken } from "@/lib/access-jwt-at-server-component";
 import ProfileForm from "@/components/dashboard/ProfileForm";
 import GetToken from "@/components/auth/GetToken";
 
+type AdminProfile = {
+    name: string;
+    email: string;
+    image?: string | null;
+};
 
+async function getAdminProfile(): Promise<AdminProfile | null> {
+    try {
+        const token = await getServerToken();
+
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/users/profile`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                cache: "no-store",
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch admin profile.");
+        }
+
+        const result = await response.json();
+
+        return result.data;
+    } catch (error) {
+        console.error("Admin profile fetch error:", error);
+        return null;
+    }
+}
 
 export default async function AdminProfilePage() {
-    const user = await getCurrentUser();
+    const user = await getAdminProfile();
 
     if (!user) return null;
-
 
     return (
         <div className="space-y-6">
@@ -29,9 +60,7 @@ export default async function AdminProfilePage() {
                 />
             </div>
 
-            {/* to get token for postman, click the btn, and  copy the token from console */}
             <GetToken />
-
         </div>
     );
 }

@@ -1,14 +1,17 @@
+
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Camera, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authClient } from "@/lib/auth-client";
+import { getClientToken } from "@/lib/access-jwt-at-client-component";
 import { toast } from "react-toastify";
+import { authClient } from "@/lib/auth-client";
 
 type ProfileFormProps = {
     user: {
@@ -20,10 +23,13 @@ type ProfileFormProps = {
 };
 
 const ProfileForm = ({ user }: ProfileFormProps) => {
+    const router = useRouter();
+
     const [name, setName] = useState(user.name);
     const [imagePreview, setImagePreview] = useState(user.image || "");
     const [image, setImage] = useState<File | null>(null);
     const [businessName, setBusinessName] = useState(user.businessName || "");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleImageChange = (file?: File) => {
         if (!file) return;
@@ -34,6 +40,8 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        setIsSubmitting(true);
 
         try {
             let imageUrl = user.image || "";
@@ -53,31 +61,69 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
 
                 const data = await response.json();
 
-                if (!data.success) {
-                    throw new Error("Image upload failed");
+                if (!response.ok || !data.success) {
+                    throw new Error("Image upload failed.");
                 }
 
                 imageUrl = data.data.display_url;
             }
 
-            const { error } = await authClient.updateUser({
+            // Get authentication token
+            const token = await getClientToken();
+
+            if (!token) {
+                throw new Error("Unable to access authentication token.");
+            }
+
+            // Update profile through backend API
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/users/profile`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        name,
+                        image: imageUrl,
+                        ...(user.businessName !== undefined && {
+                            businessName,
+                        }),
+                    }),
+                }
+            );
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || "Failed to update profile.");
+            }
+
+            // Synchronize Better Auth session
+            const { error: authError } = await authClient.updateUser({
                 name,
                 image: imageUrl || undefined,
                 ...(user.businessName !== undefined && { businessName }),
             });
 
-            if (error) {
-                throw new Error(error.message);
+            if (authError) {
+                console.error("Session update error:", authError);
             }
 
             toast.success("Profile updated successfully!");
+
+            router.refresh();
         } catch (error) {
             console.error(error);
+
             toast.error(
                 error instanceof Error
                     ? error.message
                     : "Failed to update profile."
             );
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -92,7 +138,6 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
                             alt="Profile"
                             fill
                             unoptimized
-                           
                             className="object-cover"
                         />
                     ) : (
@@ -139,15 +184,20 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
                         required
                     />
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="businessName">Your Business Name</Label>
-                    <Input
-                        id="businessName"
-                        value={businessName}
-                        onChange={(e) => setBusinessName(e.target.value)}
-                        placeholder="Enter your business name"
-                    />
-                </div>
+
+                {user.businessName !== undefined && (
+                    <div className="space-y-2">
+                        <Label htmlFor="businessName">
+                            Your Business Name
+                        </Label>
+                        <Input
+                            id="businessName"
+                            value={businessName}
+                            onChange={(e) => setBusinessName(e.target.value)}
+                            placeholder="Enter your business name"
+                        />
+                    </div>
+                )}
 
                 <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
@@ -162,8 +212,11 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
                 </div>
             </div>
 
+            {/* Submit */}
             <div className="flex justify-end">
-                <Button type="submit">Save Changes</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Saving..." : "Save Changes"}
+                </Button>
             </div>
         </form>
     );
