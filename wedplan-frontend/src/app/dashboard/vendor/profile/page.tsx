@@ -1,6 +1,7 @@
 
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import ProfileForm from "@/components/dashboard/ProfileForm";
+import GetToken from "@/components/auth/GetToken";
 
 export default async function VendorProfilePage() {
     const user = await getCurrentUser();
@@ -26,6 +27,9 @@ export default async function VendorProfilePage() {
                     }}
                 />
             </div>
+
+            {/* to get token for postman, click the btn, and  copy the token from console */}
+            <GetToken />
         </div>
     );
 }

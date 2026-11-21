@@ -79,6 +79,7 @@ const CustomerSidebar = () => {
                                         alt={user.name || "User"}
                                         fill
                                         sizes="64px"
+                                        priority
                                         className="object-cover"
                                     />
                                 ) : (

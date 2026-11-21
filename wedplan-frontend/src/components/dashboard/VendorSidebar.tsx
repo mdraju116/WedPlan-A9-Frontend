@@ -78,6 +78,7 @@ const VendorSidebar = () => {
                                         alt={user.name || "Vendor"}
                                         fill
                                         sizes="64px"
+                                        priority
                                         className="object-cover"
                                     />
                                 ) : (

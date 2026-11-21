@@ -11,6 +11,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "react-toastify";
 import { ChevronDown, LogOut, User, UserRound } from "lucide-react";
 
+type Role = "Customer" | "Vendor" | "Admin";
+
 type UserMenuProps = {
   onAction?: () => void;
 };
@@ -23,6 +25,13 @@ const UserMenu = ({ onAction }: UserMenuProps) => {
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  const profilePaths: Record<Role, string> = {
+    Customer: "/dashboard/customer/profile",
+    Vendor: "/dashboard/vendor/profile",
+    Admin: "/dashboard/admin/profile",
+  };
+
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -74,8 +83,10 @@ const UserMenu = ({ onAction }: UserMenuProps) => {
     );
   }
 
-  // Check if user is logged in
+  // Check if user is logged in  & what is the role
   const user = session?.user;
+  const role = user?.role as Role | undefined;
+  const profileLink = profilePaths[role ?? "Customer"];
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -134,6 +145,7 @@ const UserMenu = ({ onAction }: UserMenuProps) => {
                       height={40}
                       className="h-full w-full object-cover"
                       unoptimized
+                     
                     />
                   ) : (
                     <User />
@@ -154,18 +166,21 @@ const UserMenu = ({ onAction }: UserMenuProps) => {
               {/* Actions */}
               <div className="flex flex-col gap-1.5 p-2">
                 {/* See profile */}
-                <Link
-                  href="/profile-info"
-                  role="menuitem"
-                  onClick={() => {
-                    setIsDropdownOpen(false);
-                    onAction?.();
-                  }}
-                  className="flex h-8 w-full items-center justify-center gap-2 rounded-lg bg-[#068a3f] px-2.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-[#057536]"
-                >
-                  <UserRound className="h-3.5 w-3.5" />
-                  See Profile
-                </Link>
+                {!isPending && (
+                  <Link
+                    href={profileLink}
+                    role="menuitem"
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      onAction?.();
+                    }}
+                    className="flex h-8 w-full items-center justify-center gap-2 rounded-lg bg-[#068a3f] px-2.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-[#057536]"
+                  >
+                    <UserRound className="h-3.5 w-3.5" />
+                    See Profile
+                  </Link>
+                )}
+
 
                 {/* Sign out */}
                 <Button

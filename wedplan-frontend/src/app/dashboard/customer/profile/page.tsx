@@ -1,10 +1,14 @@
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import ProfileForm from "@/components/dashboard/ProfileForm";
+import GetToken from "@/components/auth/GetToken";
+
+
 
 export default async function CustomerProfilePage() {
     const user = await getCurrentUser();
 
     if (!user) return null;
+
 
     return (
         <div className="space-y-6">
@@ -24,6 +28,10 @@ export default async function CustomerProfilePage() {
                     }}
                 />
             </div>
+
+            {/* to get token for postman, click the btn, and  copy the token from console */}
+            <GetToken />
+
         </div>
     );
 }

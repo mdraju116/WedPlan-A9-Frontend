@@ -92,6 +92,7 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
                             alt="Profile"
                             fill
                             unoptimized
+                           
                             className="object-cover"
                         />
                     ) : (

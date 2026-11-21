@@ -78,6 +78,7 @@ const AdminSidebar = () => {
                                         alt={user.name || "Admin"}
                                         fill
                                         sizes="64px"
+                                        priority
                                         className="object-cover"
                                     />
                                 ) : (
