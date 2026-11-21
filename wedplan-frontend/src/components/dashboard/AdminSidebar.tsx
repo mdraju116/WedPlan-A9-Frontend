@@ -141,9 +141,9 @@ const AdminSidebar = () => {
                         <SidebarMenu>
                             <SidebarMenuItem>
                                 <SidebarMenuButton
-                                    isActive={pathname.startsWith("/dashboard/admin/users")}
+                                    isActive={pathname.startsWith("/dashboard/admin/manage-users")}
                                     tooltip="Manage Users"
-                                    render={<Link href="/dashboard/admin/users" />}
+                                    render={<Link href="/dashboard/admin/manage-users" />}
                                 >
                                     <Users />
                                     <span>Manage Users</span>
