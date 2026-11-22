@@ -1,9 +1,9 @@
 
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import BookingCard from "@/components/services/BookingCard";
+
 
 type Service = {
     _id: string;
@@ -52,10 +52,16 @@ const ServiceDetailsPage = async ({ params }: Props) => {
         notFound();
     }
 
+
+
     return (
-        <div className="mx-auto max-w-6xl px-4 py-10">
-            <div className="grid gap-8 md:grid-cols-2">
-                <div className="relative min-h-75 overflow-hidden rounded-xl bg-muted md:min-h-100">
+        <div className="mx-auto max-w-5xl px-4 py-10 space-y-8">
+
+            {/* Service Overview */}
+            <div className="grid items-stretch gap-2 md:grid-cols-2">
+
+                {/* Service Image */}
+                <div className="relative min-h-65 overflow-hidden rounded-xl bg-muted md:min-h-80">
                     {service.image && (
                         <Image
                             src={service.image}
@@ -68,53 +74,62 @@ const ServiceDetailsPage = async ({ params }: Props) => {
                     )}
                 </div>
 
-                <div className="flex flex-col justify-center space-y-5">
-                    <Badge variant="secondary" className="w-fit">
+                {/* Service Details */}
+                <div className="flex h-full flex-col justify-center rounded-2xl border border-amber-200/60 bg-amber-50/50 p-6 shadow-sm md:p-8">
+                    <Badge
+                        variant="secondary"
+                        className="mb-4 w-fit bg-amber-100 text-amber-800"
+                    >
                         {service.category}
                     </Badge>
 
-                    <h1 className="text-3xl font-bold md:text-4xl">
+                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-amber-700">
+                        Make Your Day Special
+                    </p>
+
+                    <h1 className="mt-2 font-serif text-3xl font-semibold leading-tight text-foreground md:text-4xl">
                         {service.title}
                     </h1>
 
-                    <p className="text-muted-foreground">
-                        Provided by{" "}
-                        <span className="font-medium text-foreground">
+                    <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                        <span>Provided by</span>
+                        <span className="font-semibold text-foreground">
                             {service.vendorName}
                         </span>
-                    </p>
+                    </div>
 
-                    <div>
-                        <p className="text-sm text-muted-foreground">
-                            Service Price
+                    <div className="my-6 rounded-xl border border-amber-200/70 bg-white/70 p-4">
+                        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                            Starting Price
                         </p>
-                        <p className="text-3xl font-bold text-primary">
+                        <p className="mt-1 text-3xl font-bold text-amber-700">
                             ৳{service.price.toLocaleString()}
                         </p>
                     </div>
 
                     <div className="space-y-2">
-                        <h2 className="text-lg font-semibold">
+                        <h2 className="font-serif text-xl font-semibold">
                             About This Service
                         </h2>
-                        <p className="leading-7 text-muted-foreground">
+                        <p className="text-sm leading-7 text-muted-foreground">
                             {service.description}
                         </p>
                     </div>
-
-                 
-                    <Button
-                        size="lg"
-                        className="w-full sm:w-fit"
-                        nativeButton={false}
-                        render={<Link href={`/services/${service._id}/book`} />}
-                    >
-                        Book Now
-                    </Button>
                 </div>
             </div>
+
+            {/* Booking Section */}
+            <div className="mx-auto w-full max-w-2xl">
+                <BookingCard
+                    serviceId={service._id}
+                    price={service.price}
+                />
+            </div>
+
         </div>
     );
+
+
 };
 
 export default ServiceDetailsPage;

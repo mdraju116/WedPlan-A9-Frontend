@@ -62,7 +62,7 @@ export async function POST() {
             },
 
             success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${appUrl}/checkout/checkout?canceled=true`,
+            cancel_url: `${appUrl}/checkout?canceled=true`,
         });
 
         if (!session.url) {
