@@ -23,6 +23,8 @@ const ManageUsersPage = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
+    const [query, setQuery] = useState("");
+    const [roleFilter, setRoleFilter] = useState("All");
 
     const fetchUsers = async () => {
         try {
@@ -118,6 +120,11 @@ const ManageUsersPage = () => {
         }
     };
 
+    const visibleUsers = users.filter((user) => {
+        const matchesQuery = `${user.name} ${user.email}`.toLowerCase().includes(query.trim().toLowerCase());
+        return matchesQuery && (roleFilter === "All" || user.role === roleFilter);
+    });
+
     if (loading) {
         return (
             <div className="flex min-h-75 items-center justify-center gap-2">
@@ -147,6 +154,13 @@ const ManageUsersPage = () => {
 
             </div>
 
+            <div className="grid gap-3 sm:grid-cols-[1fr_12rem]">
+                <input aria-label="Search users by name or email" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by name or email" className="h-11 rounded-md border bg-background px-3 text-sm" />
+                <select aria-label="Filter users by role" value={roleFilter} onChange={(event) => setRoleFilter(event.target.value)} className="h-11 rounded-md border bg-background px-3 text-sm">
+                    <option>All</option><option>Customer</option><option>Vendor</option><option>Admin</option>
+                </select>
+            </div>
+
             <div className="overflow-x-auto rounded-xl border">
                 <table className="w-full min-w-150 text-sm">
                     <thead className="bg-muted/50">
@@ -160,7 +174,7 @@ const ManageUsersPage = () => {
                     </thead>
 
                     <tbody>
-                        {users.map((user) => (
+                        {visibleUsers.map((user) => (
                             <tr key={user._id} className="border-t">
                                 <td className="p-4">
                                     <p className="font-medium">{user.name}</p>
@@ -219,7 +233,7 @@ const ManageUsersPage = () => {
                             </tr>
                         ))}
 
-                        {users.length === 0 && (
+                        {visibleUsers.length === 0 && (
                             <tr>
                                 <td
                                     colSpan={5}

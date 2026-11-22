@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Heart,  Mail, MapPin } from "lucide-react";
+import { Heart, Mail, MapPin } from "lucide-react";
+import { FaFacebookF, FaInstagram } from "react-icons/fa";
 
 const footerLinks = {
     explore: [
@@ -9,10 +10,10 @@ const footerLinks = {
         { label: "Get Started", href: "/sign-up" },
     ],
     categories: [
-        { label: "Photography", href: "/services" },
-        { label: "Decoration", href: "/services" },
-        { label: "Catering", href: "/services" },
-        { label: "Venues", href: "/services" },
+        { label: "Photography & Videography", href: "/services?category=Photography%20%26%20Videography" },
+        { label: "Decoration & Florists", href: "/services?category=Decoration%20%26%20Florists" },
+        { label: "Catering Services", href: "/services?category=Catering%20Services" },
+        { label: "Wedding Venues", href: "/services?category=Wedding%20Venues" },
     ],
 };
 
@@ -35,18 +36,22 @@ export default function Footer() {
 
                     <div className="mt-6 flex gap-4">
                         <Link
-                            href="/"
+                            href="https://www.instagram.com/"
                             aria-label="Instagram"
+                            target="_blank"
+                            rel="noreferrer"
                             className="transition-colors hover:text-[#D5B783]"
                         >
-                            {/* <Instagram size={19} /> */}
+                            <FaInstagram size={19} />
                         </Link>
                         <Link
-                            href="/"
+                            href="https://www.facebook.com/"
                             aria-label="Facebook"
+                            target="_blank"
+                            rel="noreferrer"
                             className="transition-colors hover:text-[#D5B783]"
                         >
-                            {/* <Facebook size={19} /> */}
+                            <FaFacebookF size={19} />
                         </Link>
                     </div>
                 </div>

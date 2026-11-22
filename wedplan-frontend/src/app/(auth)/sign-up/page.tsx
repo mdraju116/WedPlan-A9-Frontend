@@ -12,6 +12,7 @@ import Image from "next/image";
 import { SocialSignInButtons } from "@/components/auth/Social-signIn-buttons";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import { uploadImage } from "@/lib/uploadImage";
 
 export default function SignUpPage() {
     const [name, setName] = useState("");
@@ -27,28 +28,6 @@ export default function SignUpPage() {
     const [imagePreview, setImagePreview] = useState("");
 
     const router = useRouter();
-
-    const uploadImage = async (file: File) => {
-        const formData = new FormData();
-        formData.append("image", file);
-
-        const response = await fetch(
-            `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
-            {
-                method: "POST",
-                body: formData,
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            throw new Error("Image upload failed");
-        }
-
-        return data.data.display_url;
-    };
-
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();

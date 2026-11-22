@@ -16,7 +16,7 @@ import { Loader2 } from "lucide-react";
 
 type BookingStatus =
     | "Pending"
-    | "Confirmed"
+    | "Accepted"
     | "Rejected"
     | "Cancelled"
 
@@ -27,6 +27,7 @@ type Booking = {
     vendorName: string;
     serviceTitle: string;
     eventDate: string;
+    eventLocation?: string;
     amount: number;
     status: BookingStatus;
 };
@@ -129,7 +130,7 @@ const ManageBookingsPage = () => {
 
     const getStatusVariant = (status: BookingStatus) => {
         switch (status) {
-            case "Confirmed":
+            case "Accepted":
                 return "default";
             case "Rejected":
             case "Cancelled":
@@ -171,6 +172,7 @@ const ManageBookingsPage = () => {
                             <th className="p-4">Service</th>
                             <th className="p-4">Vendor</th>
                             <th className="p-4">Event Date</th>
+                            <th className="p-4">Event Location</th>
                             <th className="p-4">Amount</th>
                             <th className="p-4">Status</th>
                             <th className="p-4">Update Status</th>
@@ -197,6 +199,8 @@ const ManageBookingsPage = () => {
                                         booking.eventDate
                                     ).toLocaleDateString()}
                                 </td>
+
+                                <td className="p-4">{booking.eventLocation || "—"}</td>
 
                                 <td className="p-4 whitespace-nowrap">
                                     ৳{booking.amount.toLocaleString()}
@@ -233,8 +237,8 @@ const ManageBookingsPage = () => {
                                             <SelectItem value="Pending">
                                                 Pending
                                             </SelectItem>
-                                            <SelectItem value="Confirmed">
-                                                Confirmed
+                                            <SelectItem value="Accepted">
+                                                Accepted
                                             </SelectItem>
                                             <SelectItem value="Rejected">
                                                 Rejected
@@ -252,7 +256,7 @@ const ManageBookingsPage = () => {
                         {bookings.length === 0 && (
                             <tr>
                                 <td
-                                    colSpan={7}
+                                    colSpan={8}
                                     className="p-8 text-center text-muted-foreground"
                                 >
                                     No bookings found.

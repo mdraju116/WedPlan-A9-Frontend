@@ -1,31 +1,15 @@
-
 "use client";
 
 import * as React from "react";
-import { Pencil, Save, X, ImagePlus } from "lucide-react";
 import Image from "next/image";
+import { Pencil, Save, X } from "lucide-react";
 import { toast } from "react-toastify";
-
 import { Button } from "@/components/ui/button";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-
 import { getClientToken } from "@/lib/access-jwt-at-client-component";
+import { uploadImage } from "@/lib/uploadImage";
 
 export type Service = {
     id: string;
@@ -33,261 +17,67 @@ export type Service = {
     category: string;
     price: number;
     bookings: number;
-    status: "Active" | "Inactive";
+    status: "Pending" | "Active" | "Inactive" | "Rejected";
     image: string;
+    images: string[];
+    location: string;
 };
 
-type UpdateServiceProps = {
-    service: Service;
-    onUpdate: (updatedService: Service) => void;
-};
-
-const UpdateService = ({ service, onUpdate }: UpdateServiceProps) => {
+export default function UpdateService({ service, onUpdate }: { service: Service; onUpdate: (updatedService: Service) => void }) {
     const [open, setOpen] = React.useState(false);
     const [saving, setSaving] = React.useState(false);
-    const [imageFile, setImageFile] = React.useState<File | null>(null);
-    const [imagePreview, setImagePreview] = React.useState(service.image);
+    const [files, setFiles] = React.useState<File[]>([]);
+    const [previews, setPreviews] = React.useState<string[]>(service.images?.length ? service.images : [service.image]);
+    const [form, setForm] = React.useState({ title: service.title, category: service.category, price: service.price, location: service.location || "" });
 
-    const [form, setForm] = React.useState({
-        title: service.title,
-        category: service.category,
-        price: service.price,
-    });
-
-    const uploadImage = async (file: File) => {
-        const formData = new FormData();
-        formData.append("image", file);
-
-        const response = await fetch(
-            `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
-            {
-                method: "POST",
-                body: formData,
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            throw new Error("Image upload failed");
-        }
-
-        return data.data.display_url as string;
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
         setSaving(true);
-
         try {
             const token = await getClientToken();
-
-            if (!token) {
-                throw new Error("Authentication required");
-            }
-
-            const imageUrl = imageFile
-                ? await uploadImage(imageFile)
-                : service.image;
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/services/${service.id}`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        ...form,
-                        image: imageUrl,
-                    }),
-                }
-            );
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.message || "Failed to update service");
-            }
-
-            onUpdate({
-                ...service,
-                ...form,
-                image: imageUrl,
+            if (!token) throw new Error("Authentication required");
+            const images = files.length ? await Promise.all(files.map(uploadImage)) : (service.images?.length ? service.images : [service.image]);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/services/${service.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ ...form, price: Number(form.price), images, image: images[0] }),
             });
-
-            setImageFile(null);
-            setImagePreview(imageUrl);
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || "Failed to update service");
+            onUpdate({ ...service, ...form, images, image: images[0] });
+            setFiles([]);
+            setPreviews(images);
             setOpen(false);
-
             toast.success("Service updated successfully!");
         } catch (error) {
-            console.error("Service update failed:", error);
-
-            toast.error(
-                error instanceof Error
-                    ? error.message
-                    : "Something went wrong"
-            );
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
         } finally {
             setSaving(false);
         }
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-
-        if (!file) return;
-
-        setImageFile(file);
-        setImagePreview(URL.createObjectURL(file));
+    const reset = () => {
+        setForm({ title: service.title, category: service.category, price: service.price, location: service.location || "" });
+        setFiles([]);
+        setPreviews(service.images?.length ? service.images : [service.image]);
     };
 
     return (
-        <Dialog
-            open={open}
-            onOpenChange={(nextOpen) => {
-                if (nextOpen) {
-                    setForm({
-                        title: service.title,
-                        category: service.category,
-                        price: service.price,
-                    });
-
-                    setImageFile(null);
-                    setImagePreview(service.image);
-                }
-
-                setOpen(nextOpen);
-            }}
-        >
-            <DialogTrigger render={<Button variant="outline" size="sm" />}>
-                <Pencil className="size-4" />
-                Edit
-            </DialogTrigger>
-
+        <Dialog open={open} onOpenChange={(next) => { if (next) reset(); setOpen(next); }}>
+            <DialogTrigger render={<Button variant="outline" size="sm" />}><Pencil className="size-4" />Edit</DialogTrigger>
             <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Update Service</DialogTitle>
-                    <DialogDescription>
-                        Update your wedding service details.
-                    </DialogDescription>
-                </DialogHeader>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="title">Service Name</Label>
-                        <Input
-                            id="title"
-                            required
-                            value={form.title}
-                            onChange={(e) =>
-                                setForm((prev) => ({
-                                    ...prev,
-                                    title: e.target.value,
-                                }))
-                            }
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="category">Category</Label>
-                        <Select
-                            value={form.category}
-                            onValueChange={(value) =>
-                                setForm((prev) => ({
-                                    ...prev,
-                                    category: value ?? "",
-                                }))
-                            }
-                        >
-                            <SelectTrigger id="category" className="w-full">
-                                <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Photography">Photography</SelectItem>
-                                <SelectItem value="Decoration">Decoration</SelectItem>
-                                <SelectItem value="Catering">Catering</SelectItem>
-                                <SelectItem value="Venue">Venue</SelectItem>
-                                <SelectItem value="Makeup">Makeup</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="price">Price (৳)</Label>
-                        <Input
-                            id="price"
-                            type="number"
-                            min="0"
-                            required
-                            value={form.price}
-                            onChange={(e) =>
-                                setForm((prev) => ({
-                                    ...prev,
-                                    price: Number(e.target.value),
-                                }))
-                            }
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="image">Service Image</Label>
-
-                        <div className="flex items-center gap-4">
-                            <div className="relative size-24 shrink-0 overflow-hidden rounded-lg border bg-muted">
-                                {imagePreview ? (
-                                    <Image
-                                        src={imagePreview}
-                                        alt="Service preview"
-                                        fill
-                                        unoptimized
-                                        className="object-cover"
-                                    />
-                                ) : (
-                                    <div className="flex h-full items-center justify-center">
-                                        <ImagePlus className="size-8 text-muted-foreground" />
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                                <Input
-                                    id="image"
-                                    type="file"
-                                    accept="image/*"
-                                    className="max-w-56"
-                                    onChange={handleImageChange}
-                                />
-                                <p className="text-xs text-muted-foreground">
-                                    Select an image from your device.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-end gap-2 pt-2">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => setOpen(false)}
-                            disabled={saving}
-                        >
-                            <X className="size-4" />
-                            Cancel
-                        </Button>
-
-                        <Button type="submit" disabled={saving}>
-                            <Save className="size-4" />
-                            {saving ? "Saving..." : "Save Changes"}
-                        </Button>
-                    </div>
+                <DialogHeader><DialogTitle>Update Service</DialogTitle><DialogDescription>Update your wedding service details.</DialogDescription></DialogHeader>
+                <form onSubmit={handleSubmit} className="max-h-[75vh] space-y-4 overflow-y-auto px-1">
+                    <div className="space-y-2"><Label htmlFor="edit-title">Service Name</Label><Input id="edit-title" required value={form.title} onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))} /></div>
+                    <div className="space-y-2"><Label htmlFor="edit-category">Category</Label><select id="edit-category" required className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={form.category} onChange={(e) => setForm((prev) => ({ ...prev, category: e.target.value }))}>
+                        {["Photography & Videography", "Wedding Venues", "Decoration & Florists", "Catering Services", "Makeup & Styling", "Wedding Fashion"].map((item) => <option key={item} value={item}>{item}</option>)}
+                    </select></div>
+                    <div className="space-y-2"><Label htmlFor="edit-location">Location</Label><Input id="edit-location" required value={form.location} onChange={(e) => setForm((prev) => ({ ...prev, location: e.target.value }))} /></div>
+                    <div className="space-y-2"><Label htmlFor="edit-price">Price (৳)</Label><Input id="edit-price" type="number" min="1" required value={form.price} onChange={(e) => setForm((prev) => ({ ...prev, price: Number(e.target.value) }))} /></div>
+                    <div className="space-y-2"><Label htmlFor="edit-images">Service Images</Label><div className="flex flex-wrap gap-2">{previews.map((src, index) => <div key={`${src}-${index}`} className="relative size-20 overflow-hidden rounded border"><Image src={src} alt={`Service preview ${index + 1}`} fill unoptimized className="object-cover" /></div>)}</div><Input id="edit-images" type="file" accept="image/*" multiple onChange={(e) => { const selected = Array.from(e.target.files ?? []); setFiles(selected); setPreviews(selected.map((file) => URL.createObjectURL(file))); }} /><p className="text-xs text-muted-foreground">Selecting new images replaces the current gallery.</p></div>
+                    <div className="flex justify-end gap-2 pt-2"><Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={saving}><X className="size-4" />Cancel</Button><Button type="submit" disabled={saving}><Save className="size-4" />{saving ? "Saving..." : "Save Changes"}</Button></div>
                 </form>
             </DialogContent>
         </Dialog>
     );
-};
-
-export default UpdateService;
+}

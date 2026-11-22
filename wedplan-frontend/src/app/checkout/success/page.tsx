@@ -1,70 +1,76 @@
-import { redirect } from 'next/navigation'
+import Link from "next/link";
+import { stripe } from "@/lib/stripe";
+import { getCurrentUser } from "@/lib/getCurrentUser";
+import { getServerToken } from "@/lib/access-jwt-at-server-component";
 
-import Link from 'next/link'
-import { stripe } from '@/lib/stripe'
+type Props = { searchParams: Promise<{ session_id?: string }> };
 
-export default async function Success({ searchParams }: { searchParams: Promise<{ session_id?: string }> }) {
-
-    const { session_id } = await searchParams
-    if (!session_id)
-        throw new Error('Please provide a valid session_id (`cs_test_...`)')
-
-    const { status, customer_details: customerDetails } = await 
-	stripe.checkout.sessions.retrieve(session_id, {
-        expand: ['line_items', 'payment_intent']
-    })
-
-    const customerEmail = customerDetails?.email
-    if (status === 'open') {
-        return redirect('/')
+export default async function CheckoutSuccessPage({ searchParams }: Props) {
+    const { session_id: sessionId } = await searchParams;
+    if (!sessionId) {
+        return <StatusCard message="We couldn't find the checkout session. Please contact support if your payment was charged." />;
     }
-    if (status === 'complete') {
 
-
-
-        return (
-            <section
-                id="success"
-                className="flex min-h-screen items-center justify-center bg-slate-950 px-4"
-            >
-                <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#
-				18191b] p-8 text-center shadow-xl">
-                   
-
-                    <h1 className="text-2xl font-bold text-white">
-                        Payment Successful!
-                    </h1>
-                    <p className="mt-3 text-sm leading-6 text-gray-400">
-                        Thank you for your purchase! We appreciate your business.
-                    </p>
-
-                    <div className="mt-6 rounded-lg bg-white/5 p-4">
-                        <p className="text-sm leading-6 text-gray-300">
-                            A confirmation email will be sent to{" "}
-                            <span className="font-semibold text-white">
-                                {customerEmail}
-                            </span>.
-                            <br /> If you have any questions, please contact us.
-                        </p>
-                        <Link
-                            href="mailto:orders@example.com"
-                            className="mt-2 inline-block text-sm font-medium text-green-400 
-						hover:text-green-300"
-                        >
-                            orders@example.com
-                        </Link>
-                    </div>
-
-
-                    <Link
-                        href="/"
-                        className="mt-7 inline-block w-full rounded-lg bg-[#068a3f] px-5 py-3 
-				    text-sm font-semibold text-white transition-colors hover:bg-[#057535]"
-                    >
-                        Back to Home
-                    </Link>
-                </div>
-            </section>
-        );
+    let checkoutSession;
+    try {
+        checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
+    } catch {
+        return <StatusCard message="We couldn't verify this checkout session. Please contact support if your payment was charged." />;
     }
+
+    if (checkoutSession.status !== "complete" || checkoutSession.mode !== "subscription") {
+        return <StatusCard message="Your checkout is not complete yet. Please wait a moment or return to services." />;
+    }
+
+    const user = await getCurrentUser();
+    let planSynced = false;
+    if (user?.role === "Vendor" && process.env.NEXT_PUBLIC_SERVER_BASE_URL) {
+        try {
+            const token = await getServerToken();
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/payments/confirm`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ sessionId }),
+                cache: "no-store",
+            });
+            planSynced = response.ok;
+        } catch (error) {
+            console.error("Subscription confirmation failed:", error);
+        }
+    }
+
+    return (
+        <section className="flex min-h-[70vh] items-center justify-center bg-[#fbf7f1] px-4 py-12">
+            <div className="w-full max-w-lg rounded-3xl border border-[#eadfd4] bg-white p-8 text-center shadow-xl sm:p-10">
+                <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-emerald-50 text-2xl text-emerald-700">✓</div>
+                <h1 className="mt-5 font-serif text-3xl text-[#35213b]">Payment successful</h1>
+                <p className="mt-3 text-sm leading-6 text-[#71646e]">
+                    {planSynced
+                        ? "Your Premium plan is active. You can manage your subscription from your vendor dashboard."
+                        : "Your payment is confirmed. Your Premium plan is syncing and should appear in your vendor dashboard shortly."}
+                </p>
+                <Link
+                    href={user?.role === "Vendor" ? "/dashboard/vendor/subscription" : "/services"}
+                    className="mt-7 inline-flex w-full items-center justify-center rounded-full bg-[#392340] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#513052]"
+                >
+                    {user?.role === "Vendor" ? "View subscription" : "Explore services"}
+                </Link>
+            </div>
+        </section>
+    );
+}
+
+function StatusCard({ message }: { message: string }) {
+    return (
+        <section className="flex min-h-[70vh] items-center justify-center bg-[#fbf7f1] px-4 py-12">
+            <div className="w-full max-w-lg rounded-3xl border border-[#eadfd4] bg-white p-8 text-center shadow-xl sm:p-10">
+                <h1 className="font-serif text-3xl text-[#35213b]">Checkout status</h1>
+                <p className="mt-3 text-sm leading-6 text-[#71646e]">{message}</p>
+                <Link href="/services" className="mt-7 inline-flex rounded-full bg-[#392340] px-6 py-3 text-sm font-semibold text-white">Back to services</Link>
+            </div>
+        </section>
+    );
 }

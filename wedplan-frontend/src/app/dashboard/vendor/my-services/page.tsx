@@ -8,6 +8,7 @@ import {
     Plus,
     BriefcaseBusiness,
     Trash2,
+    Eye,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -66,8 +67,10 @@ export default function MyServicesPage() {
                         category: string;
                         price: number;
                         bookings: number;
-                        status: "Active" | "Inactive";
+                        status: "Pending" | "Active" | "Inactive" | "Rejected";
                         image: string;
+                        images?: string[];
+                        location?: string;
                     }) => ({
                         id: service._id,
                         title: service.title,
@@ -76,6 +79,8 @@ export default function MyServicesPage() {
                         bookings: service.bookings,
                         status: service.status,
                         image: service.image,
+                        images: service.images ?? (service.image ? [service.image] : []),
+                        location: service.location ?? "",
                     })
                 );
 
@@ -205,6 +210,9 @@ export default function MyServicesPage() {
                                         <p className="mt-1 text-sm text-muted-foreground">
                                             {service.category}
                                         </p>
+                                        <p className="mt-1 text-sm text-muted-foreground">
+                                            {service.location || "Location not listed"}
+                                        </p>
                                     </div>
 
                                     <Badge
@@ -241,6 +249,11 @@ export default function MyServicesPage() {
 
                             {/* Actions */}
                             <div className="flex items-center justify-center gap-2 border-t py-4">
+                                <Button variant="outline" size="sm" render={<Link href={`/services/${service.id}`} />}>
+                                    <Eye className="size-4" />
+                                    View Details
+                                </Button>
+
                                 <UpdateService
                                     service={service}
                                     onUpdate={handleUpdateService}

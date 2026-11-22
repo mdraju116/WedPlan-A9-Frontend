@@ -17,6 +17,7 @@ const BookingCard = ({ serviceId, price }: Props) => {
     const router = useRouter();
 
     const [eventDate, setEventDate] = useState("");
+    const [eventLocation, setEventLocation] = useState("");
     const [message, setMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [limitReached, setLimitReached] = useState(false);
@@ -44,6 +45,7 @@ const BookingCard = ({ serviceId, price }: Props) => {
                     body: JSON.stringify({
                         serviceId,
                         eventDate,
+                        eventLocation,
                         message,
                     }),
                 }
@@ -114,6 +116,18 @@ const BookingCard = ({ serviceId, price }: Props) => {
                             min={today}
                             value={eventDate}
                             onChange={(e) => setEventDate(e.target.value)}
+                            required
+                            className="h-11 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label htmlFor="eventLocation" className="text-sm font-medium">Event Location</label>
+                        <input
+                            id="eventLocation"
+                            value={eventLocation}
+                            onChange={(e) => setEventLocation(e.target.value)}
+                            placeholder="City or venue for your event"
                             required
                             className="h-11 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary"
                         />

@@ -1,4 +1,5 @@
 import VendorSidebar from "@/components/dashboard/VendorSidebar";
+import { getDashboardPaths } from "@/lib/getDashboardPaths";
 import {
     SidebarInset,
     SidebarProvider,
@@ -7,11 +8,13 @@ import {
 
 
 
-export default function VendorLayout({
+export default async function VendorLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    await getDashboardPaths(["Vendor"]);
+
     return (
         <SidebarProvider>
             <VendorSidebar />

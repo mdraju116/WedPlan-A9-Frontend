@@ -20,6 +20,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import { getClientToken } from "@/lib/access-jwt-at-client-component";
+import { uploadImage } from "@/lib/uploadImage";
 
 const AddServiceForm = () => {
     const router = useRouter();
@@ -28,11 +29,12 @@ const AddServiceForm = () => {
         title: "",
         category: "",
         price: "",
+        location: "",
         description: "",
     });
 
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState("");
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
     const [saving, setSaving] = useState(false);
     const [limitReached, setLimitReached] = useState(false);
 
@@ -48,40 +50,16 @@ const AddServiceForm = () => {
     };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-
-        if (!file) return;
-
-        setImageFile(file);
-        setImagePreview(URL.createObjectURL(file));
-    };
-
-    const uploadImage = async (file: File) => {
-        const formData = new FormData();
-        formData.append("image", file);
-
-        const response = await fetch(
-            `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
-            {
-                method: "POST",
-                body: formData,
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            throw new Error("Image upload failed");
-        }
-
-        return data.data.display_url as string;
+        const files = Array.from(e.target.files ?? []);
+        setImageFiles(files);
+        setImagePreviews(files.map((file) => URL.createObjectURL(file)));
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (!imageFile) {
-            toast.error("Please select a service image");
+        if (imageFiles.length === 0) {
+            toast.error("Please select at least one service image");
             return;
         }
 
@@ -99,8 +77,7 @@ const AddServiceForm = () => {
                 throw new Error("Authentication required");
             }
 
-            // Upload service image
-            const imageUrl = await uploadImage(imageFile);
+            const imageUrls = await Promise.all(imageFiles.map(uploadImage));
 
             // Create service
             const response = await fetch(
@@ -114,7 +91,8 @@ const AddServiceForm = () => {
                     body: JSON.stringify({
                         ...form,
                         price: Number(form.price),
-                        image: imageUrl,
+                        images: imageUrls,
+                        image: imageUrls[0],
                     }),
                 }
             );
@@ -133,7 +111,7 @@ const AddServiceForm = () => {
                 );
             }
 
-            toast.success("Service added successfully!");
+            toast.success("Service submitted for admin review.");
 
             router.push("/dashboard/vendor/my-services");
             router.refresh();
@@ -204,12 +182,12 @@ const AddServiceForm = () => {
                             <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="Photography">Photography</SelectItem>
-                            <SelectItem value="Decoration">Decoration</SelectItem>
-                            <SelectItem value="Catering">Catering</SelectItem>
-                            <SelectItem value="Venue">Venue</SelectItem>
-                            <SelectItem value="Makeup">Makeup</SelectItem>
-                            <SelectItem value="Entertainment">Entertainment</SelectItem>
+                            <SelectItem value="Photography & Videography">Photography &amp; Videography</SelectItem>
+                            <SelectItem value="Wedding Venues">Wedding Venues</SelectItem>
+                            <SelectItem value="Decoration & Florists">Decoration &amp; Florists</SelectItem>
+                            <SelectItem value="Catering Services">Catering Services</SelectItem>
+                            <SelectItem value="Makeup & Styling">Makeup &amp; Styling</SelectItem>
+                            <SelectItem value="Wedding Fashion">Wedding Fashion</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -230,6 +208,18 @@ const AddServiceForm = () => {
             </div>
 
             <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                    id="location"
+                    name="location"
+                    placeholder="e.g. Dhaka, Bangladesh"
+                    value={form.location}
+                    onChange={handleChange}
+                    required
+                />
+            </div>
+
+            <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                     id="description"
@@ -243,35 +233,27 @@ const AddServiceForm = () => {
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="image">Service Image</Label>
-
-                <div className="flex items-center gap-4">
-                    <div className="relative flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
-                        {imagePreview ? (
-                            <Image
-                                src={imagePreview}
-                                alt="Service preview"
-                                fill
-                                unoptimized
-                                className="object-cover"
-                            />
-                        ) : (
-                            <ImagePlus className="size-8 text-muted-foreground" />
-                        )}
-                    </div>
-
+                <Label htmlFor="images">Service Images</Label>
+                <div className="flex flex-wrap items-center gap-3">
+                    {imagePreviews.map((preview, index) => (
+                        <div key={preview} className="relative size-20 overflow-hidden rounded-lg border bg-muted">
+                            <Image src={preview} alt={`Service preview ${index + 1}`} fill unoptimized className="object-cover" />
+                        </div>
+                    ))}
+                    {imagePreviews.length === 0 && <ImagePlus className="size-8 text-muted-foreground" />}
                     <Input
-                        id="image"
+                        id="images"
                         type="file"
                         accept="image/*"
-                        className="max-w-56"
+                        multiple
+                        className="max-w-72"
                         onChange={handleImageChange}
                         required
                     />
                 </div>
 
                 <p className="text-xs text-muted-foreground">
-                    Select an image from your device.
+                    Choose one or more images. The first image is used on service cards.
                 </p>
             </div>
 

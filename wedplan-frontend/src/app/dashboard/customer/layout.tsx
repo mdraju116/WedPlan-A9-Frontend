@@ -5,12 +5,15 @@ import {
 } from "@/components/ui/sidebar";
 
 import CustomerSidebar from "@/components/dashboard/CustomerSidebar";
+import { getDashboardPaths } from "@/lib/getDashboardPaths";
 
-export default function CustomerLayout({
+export default async function CustomerLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    await getDashboardPaths(["Customer"]);
+
     return (
         <SidebarProvider>
             <CustomerSidebar />

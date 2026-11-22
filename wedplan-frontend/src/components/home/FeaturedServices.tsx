@@ -9,9 +9,31 @@ type Service = {
     category: string;
     price: number;
     image: string;
+    images?: string[];
+    location?: string;
     description: string;
     vendorName: string;
 };
+
+const categoryAliases = [
+    ["Photography & Videography", "Photography", "Videography"],
+    ["Wedding Venues", "Venue", "Venues"],
+    ["Decoration & Florists", "Decoration", "Florist", "Florists"],
+    ["Catering Services", "Catering"],
+    ["Makeup & Styling", "Makeup", "Styling"],
+    ["Wedding Fashion", "Fashion"],
+];
+
+function selectFeaturedServices(services: Service[]): Service[] {
+    const selected = categoryAliases.flatMap((aliases) => {
+        const match = services.find((service) => aliases.some(
+            (category) => service.category.trim().toLowerCase() === category.toLowerCase(),
+        ));
+        return match ? [match] : [];
+    });
+    const selectedIds = new Set(selected.map((service) => service._id));
+    return [...selected, ...services.filter((service) => !selectedIds.has(service._id))].slice(0, 6);
+}
 
 async function getFeaturedServices(): Promise<Service[]> {
     try {
@@ -26,7 +48,7 @@ async function getFeaturedServices(): Promise<Service[]> {
 
         const result = await response.json();
 
-        return Array.isArray(result.data) ? result.data.slice(0, 3) : [];
+        return Array.isArray(result.data) ? selectFeaturedServices(result.data) : [];
     } catch (error) {
         console.error("Featured services error:", error);
         return [];
@@ -62,7 +84,7 @@ const FeaturedServices = async () => {
 
                 {/* Service Cards */}
                 {services.length > 0 ? (
-                    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {services.map((service) => (
                             <article
                                 key={service._id}
@@ -72,49 +94,49 @@ const FeaturedServices = async () => {
                                     href={`/services/${service._id}`}
                                     className="block"
                                 >
-                                    <div className="relative aspect-4/3 overflow-hidden">
+                                    <div className="relative aspect-video overflow-hidden">
                                         <Image
-                                            src={service.image}
+                                            src={service.images?.[0] || service.image}
                                             alt={service.title}
                                             fill
                                             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                                             className="object-cover transition-transform duration-700 group-hover:scale-105"
                                         />
 
-                                        <span className="absolute left-4 top-4 bg-[#FAF8F4] px-4 py-2 text-xs font-medium tracking-wide text-[#8D7048]">
-                                            {service.category}
-                                        </span>
                                     </div>
 
-                                    <div className="space-y-4 p-6">
-                                        <div>
-                                            <h3 className="font-serif text-2xl text-[#302820] transition-colors group-hover:text-[#B49360]">
+                                    <div className="space-y-3 p-4">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <h3 className="min-w-0 flex-1 line-clamp-1 font-serif text-xl text-[#302820] transition-colors group-hover:text-[#B49360]">
                                                 {service.title}
                                             </h3>
-
-                                            <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#81776D]">
+                                            <span className="max-w-[48%] shrink-0 rounded-full border border-[#E9D8BD] bg-[#FAF4E9] px-3 py-1 text-right text-xs font-semibold leading-4 text-[#8D7048]">
+                                                {service.category}
+                                            </span>
+                                        </div>
+                                        <div className="flex min-h-12 items-start justify-between gap-3">
+                                            <p className="min-w-0 flex-1 line-clamp-2 text-sm leading-6 text-[#81776D]">
                                                 {service.description}
                                             </p>
-                                        </div>
-
-                                        <div className="flex items-center justify-between border-t border-[#E9E0D4] pt-4">
-                                            <div>
-                                                <p className="text-xs text-[#968A7D]">
-                                                    Starting from
-                                                </p>
+                                            <div className="shrink-0 text-right">
+                                                <p className="text-xs text-[#968A7D]">Starting from</p>
                                                 <p className="mt-1 font-semibold text-[#8D7048]">
-                                                    ৳{service.price.toLocaleString("en-BD")}
+                                                    {`৳${service.price.toLocaleString("en-BD")}`}
                                                 </p>
                                             </div>
+                                        </div>
 
-                                            <span className="flex size-10 items-center justify-center rounded-full border border-[#DCCCB5] text-[#8D7048] transition-colors group-hover:bg-[#B49360] group-hover:text-white">
+                                        <div className="flex items-center justify-between border-t border-[#E9E0D4] pt-3">
+                                            <div className="min-w-0 flex-1 text-xs leading-5 text-[#968A7D]">
+                                                <p className="truncate">Provided by {service.vendorName}</p>
+                                                <p className="truncate">{service.location || "Location not listed"}</p>
+                                            </div>
+
+                                            <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-[#DCCCB5] text-[#8D7048] transition-colors group-hover:bg-[#B49360] group-hover:text-white">
                                                 <ArrowUpRight className="size-5" />
                                             </span>
                                         </div>
 
-                                        <p className="text-xs text-[#968A7D]">
-                                            Provided by {service.vendorName}
-                                        </p>
                                     </div>
                                 </Link>
                             </article>

@@ -1,15 +1,18 @@
 import AdminSidebar from "@/components/dashboard/AdminSidebar";
+import { getDashboardPaths } from "@/lib/getDashboardPaths";
 import {
     SidebarInset,
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 
-export default function AdminLayout({
+export default async function AdminLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    await getDashboardPaths(["Admin"]);
+
     return (
         <SidebarProvider>
             <AdminSidebar />

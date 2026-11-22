@@ -14,8 +14,9 @@ type BookingRequest = {
     customer: string;
     service: string;
     date: string;
+    eventLocation: string;
     amount: number;
-    status: "Pending" | "Confirmed" | "Rejected" | "Cancelled" | "Completed";
+    status: "Pending" | "Accepted" | "Rejected" | "Cancelled" | "Completed";
 };
 
 export default function BookingRequestsPage() {
@@ -54,6 +55,7 @@ export default function BookingRequestsPage() {
                         customerName: string;
                         serviceTitle: string;
                         eventDate: string;
+                        eventLocation: string;
                         amount: number;
                         status: BookingRequest["status"];
                     }) => ({
@@ -68,6 +70,7 @@ export default function BookingRequestsPage() {
                                 year: "numeric",
                             }
                         ),
+                        eventLocation: booking.eventLocation,
                         amount: booking.amount,
                         status: booking.status,
                     })
@@ -92,7 +95,7 @@ export default function BookingRequestsPage() {
     // Accept or reject booking request
     const handleStatusChange = async (
         bookingId: string,
-        status: "Confirmed" | "Rejected"
+        status: "Accepted" | "Rejected"
     ) => {
         setUpdatingId(bookingId);
 
@@ -132,7 +135,7 @@ export default function BookingRequestsPage() {
             );
 
             toast.success(
-                `Booking ${status === "Confirmed" ? "accepted" : "rejected"} successfully!`
+                `Booking ${status === "Accepted" ? "accepted" : "rejected"} successfully!`
             );
         } catch (error) {
             console.error("Booking status update failed:", error);
@@ -153,8 +156,8 @@ export default function BookingRequestsPage() {
         (request) => request.status === "Pending"
     ).length;
 
-    const confirmedRequests = requests.filter(
-        (request) => request.status === "Confirmed"
+    const acceptedRequests = requests.filter(
+        (request) => request.status === "Accepted"
     ).length;
 
     return (
@@ -188,10 +191,10 @@ export default function BookingRequestsPage() {
 
                 <div className="rounded-xl border p-5">
                     <p className="text-sm text-muted-foreground">
-                        Confirmed Requests
+                        Accepted Requests
                     </p>
                     <h2 className="mt-2 text-2xl font-bold">
-                        {confirmedRequests}
+                        {acceptedRequests}
                     </h2>
                 </div>
             </div>
@@ -241,7 +244,8 @@ export default function BookingRequestsPage() {
                                         </div>
 
                                         <div className="min-w-30 text-sm">
-                                            {request.date}
+                                            <div>{request.date}</div>
+                                            <div className="text-xs text-muted-foreground">{request.eventLocation}</div>
                                         </div>
 
                                         <div className="min-w-25 font-semibold">
@@ -251,7 +255,7 @@ export default function BookingRequestsPage() {
                                         <div className="min-w-25">
                                             <Badge
                                                 variant={
-                                                    request.status === "Confirmed"
+                                                    request.status === "Accepted"
                                                         ? "default"
                                                         : request.status === "Rejected"
                                                           ? "destructive"
@@ -271,7 +275,7 @@ export default function BookingRequestsPage() {
                                                         onClick={() =>
                                                             handleStatusChange(
                                                                 request.id,
-                                                                "Confirmed"
+                                                                "Accepted"
                                                             )
                                                         }
                                                     >

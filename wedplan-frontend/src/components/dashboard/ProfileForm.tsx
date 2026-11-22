@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { getClientToken } from "@/lib/access-jwt-at-client-component";
 import { toast } from "react-toastify";
 import { authClient } from "@/lib/auth-client";
+import { uploadImage } from "@/lib/uploadImage";
 
 type ProfileFormProps = {
     user: {
@@ -48,24 +49,7 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
 
             // Upload a new profile image if selected
             if (image) {
-                const formData = new FormData();
-                formData.append("image", image);
-
-                const response = await fetch(
-                    `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
-                    {
-                        method: "POST",
-                        body: formData,
-                    }
-                );
-
-                const data = await response.json();
-
-                if (!response.ok || !data.success) {
-                    throw new Error("Image upload failed.");
-                }
-
-                imageUrl = data.data.display_url;
+                imageUrl = await uploadImage(image);
             }
 
             // Get authentication token

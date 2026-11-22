@@ -42,6 +42,7 @@ const MyBookingsPage = () => {
                         serviceTitle: string;
                         vendorName: string;
                         eventDate: string;
+                        eventLocation: string;
                         amount: number;
                         status: Booking["status"];
                     }) => ({
@@ -49,6 +50,7 @@ const MyBookingsPage = () => {
                         serviceId: booking.serviceId,
                         service: booking.serviceTitle,
                         vendor: booking.vendorName,
+                        eventLocation: booking.eventLocation,
                         date: new Date(booking.eventDate).toLocaleDateString(
                             "en-BD",
                             {
@@ -125,7 +127,7 @@ const MyBookingsPage = () => {
                 <TabsList>
                     <TabsTrigger value="all">All Bookings</TabsTrigger>
                     <TabsTrigger value="pending">Pending</TabsTrigger>
-                    <TabsTrigger value="confirmed">Confirmed</TabsTrigger>
+                    <TabsTrigger value="accepted">Accepted</TabsTrigger>
                     <TabsTrigger value="completed">Completed</TabsTrigger>
                     <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
                 </TabsList>
@@ -159,7 +161,7 @@ const MyBookingsPage = () => {
                     )}
                 </TabsContent>
 
-                <TabsContent value="confirmed">
+                <TabsContent value="accepted">
                     {loading ? (
                         <p className="py-10 text-center text-muted-foreground">
                             Loading bookings...
@@ -167,7 +169,7 @@ const MyBookingsPage = () => {
                     ) : (
                         <BookingList
                             bookings={bookings}
-                            status="confirmed"
+                            status="accepted"
                             onCancel={setCancelBookingId}
                         />
                     )}

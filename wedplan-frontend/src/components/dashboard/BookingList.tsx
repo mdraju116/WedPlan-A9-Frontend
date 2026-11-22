@@ -11,8 +11,9 @@ export type Booking = {
     service: string;
     vendor: string;
     date: string;
+    eventLocation: string;
     amount: number;
-    status: "Pending" | "Confirmed" | "Completed" | "Cancelled";
+    status: "Pending" | "Accepted" | "Completed" | "Cancelled";
 };
 
 type BookingListProps = {
@@ -62,6 +63,7 @@ const BookingList = ({ bookings, status, onCancel, }: BookingListProps) => {
                                 <p className="font-semibold">
                                     {booking.service}
                                 </p>
+                                <p className="text-xs text-muted-foreground">Event: {booking.eventLocation}</p>
                             </div>
 
                             <div className="min-w-30">
@@ -90,7 +92,7 @@ const BookingList = ({ bookings, status, onCancel, }: BookingListProps) => {
                             <div className="min-w-25">
                                 <Badge
                                     variant={
-                                        booking.status === "Confirmed"
+                                        booking.status === "Accepted"
                                             ? "default"
                                             : booking.status === "Completed" ||
                                                 booking.status === "Cancelled"

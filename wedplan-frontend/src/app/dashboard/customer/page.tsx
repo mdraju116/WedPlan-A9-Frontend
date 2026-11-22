@@ -11,7 +11,7 @@ type RecentBooking = {
     vendorName: string;
     eventDate: string;
     amount: number;
-    status: "Pending" | "Confirmed" | "Rejected" | "Cancelled" | "Completed";
+    status: "Pending" | "Accepted" | "Rejected" | "Cancelled" | "Completed";
 };
 
 export default async function CustomerDashboard() {
@@ -38,7 +38,7 @@ export default async function CustomerDashboard() {
         stats: {
             totalBookings: number;
             pendingBookings: number;
-            confirmedBookings: number;
+            acceptedBookings: number;
             completedBookings: number;
         };
         recentBookings: RecentBooking[];
@@ -74,10 +74,10 @@ export default async function CustomerDashboard() {
 
                 <div className="rounded-xl border p-5">
                     <div className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">Confirmed Bookings</p>
+                        <p className="text-sm text-muted-foreground">Accepted Bookings</p>
                         <CheckCircle2 className="size-5 text-green-600" />
                     </div>
-                    <h2 className="mt-3 text-2xl font-bold">{stats.confirmedBookings}</h2>
+                    <h2 className="mt-3 text-2xl font-bold">{stats.acceptedBookings}</h2>
                 </div>
 
                 <div className="rounded-xl border p-5">
@@ -142,7 +142,7 @@ export default async function CustomerDashboard() {
                                     <TableCell>
                                         <Badge
                                             variant={
-                                                booking.status === "Confirmed"
+                                                booking.status === "Accepted"
                                                     ? "default"
                                                     : booking.status === "Completed"
                                                         ? "secondary"

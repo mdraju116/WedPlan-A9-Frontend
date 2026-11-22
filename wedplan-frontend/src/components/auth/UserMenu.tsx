@@ -31,6 +31,11 @@ const UserMenu = ({ onAction }: UserMenuProps) => {
     Vendor: "/dashboard/vendor/profile",
     Admin: "/dashboard/admin/profile",
   };
+  const dashboardPaths: Record<Role, string> = {
+    Customer: "/dashboard/customer",
+    Vendor: "/dashboard/vendor",
+    Admin: "/dashboard/admin",
+  };
 
 
   // Close dropdown when clicking outside
@@ -87,6 +92,7 @@ const UserMenu = ({ onAction }: UserMenuProps) => {
   const user = session?.user;
   const role = user?.role as Role | undefined;
   const profileLink = profilePaths[role ?? "Customer"];
+  const dashboardLink = dashboardPaths[role ?? "Customer"];
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -165,6 +171,17 @@ const UserMenu = ({ onAction }: UserMenuProps) => {
 
               {/* Actions */}
               <div className="flex flex-col gap-1.5 p-2">
+                <Link
+                  href={dashboardLink}
+                  role="menuitem"
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    onAction?.();
+                  }}
+                  className="flex h-8 w-full items-center justify-center rounded-lg bg-[#068a3f] px-2.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-[#057536]"
+                >
+                  Dashboard
+                </Link>
                 {/* See profile */}
                 {!isPending && (
                   <Link
@@ -177,7 +194,7 @@ const UserMenu = ({ onAction }: UserMenuProps) => {
                     className="flex h-8 w-full items-center justify-center gap-2 rounded-lg bg-[#068a3f] px-2.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-[#057536]"
                   >
                     <UserRound className="h-3.5 w-3.5" />
-                    See Profile
+                    Profile Settings
                   </Link>
                 )}
 

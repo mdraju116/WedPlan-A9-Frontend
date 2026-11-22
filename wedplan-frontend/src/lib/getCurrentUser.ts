@@ -5,6 +5,9 @@ import { auth } from "./auth";
 export async function getCurrentUser() {
     const session = await auth.api.getSession({
         headers: await headers(),
+        query: {
+            disableCookieCache: true,
+        },
     });
 
     return session?.user ?? null;

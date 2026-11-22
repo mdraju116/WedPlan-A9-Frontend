@@ -28,7 +28,7 @@ type RecentBooking = {
     serviceTitle: string;
     eventDate: string;
     amount: number;
-    status: "Pending" | "Confirmed" | "Rejected" | "Cancelled" | "Completed";
+    status: "Pending" | "Accepted" | "Rejected" | "Cancelled" | "Completed";
 };
 
 type VendorDashboardData = {
@@ -91,7 +91,7 @@ export default async function VendorDashboard() {
         {
             title: "Total Earnings",
             value: `৳${stats.totalEarnings.toLocaleString("en-BD")}`,
-            description: "Total confirmed earnings",
+            description: "Total accepted earnings",
             icon: DollarSign,
         },
     ];
@@ -202,7 +202,7 @@ export default async function VendorDashboard() {
                                     <TableCell>
                                         <Badge
                                             variant={
-                                                booking.status === "Confirmed"
+                                                booking.status === "Accepted"
                                                     ? "default"
                                                     : booking.status === "Completed"
                                                         ? "secondary"

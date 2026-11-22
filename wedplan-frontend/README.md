@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WedPlan
 
-## Getting Started
+WedPlan is a wedding planning marketplace where customers browse vendors and request bookings, vendors manage service listings and booking requests, and admins review marketplace activity.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Browse and search approved wedding services by name, category, and location; sort by price.
+- Review service details and submit booking requests with an event date and location.
+- Customer, vendor, and admin dashboards with role-specific access.
+- Vendor service submissions, admin moderation, and Premium subscriptions through Stripe Checkout.
+- Responsive layouts, loading and empty states, notifications, and reduced-motion-aware homepage transitions.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technology
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Next.js 16 App Router, React 19, TypeScript
+- Tailwind CSS 4 and shadcn/ui
+- Better Auth with MongoDB
+- Express 5, MongoDB, JWT verification
+- Stripe Checkout and verified webhooks
+- ImgBB image hosting through a server-side upload route
+- Motion for homepage section transitions
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Repositories and deployment
 
-## Learn More
+- Frontend: [WedPlan-A9-Frontend](https://github.com/mdraju116/WedPlan-A9-Frontend)
+- Backend: [WedPlan-A9-Backend](https://github.com/mdraju116/WedPlan-A9-Backend)
+- Live site: add the deployed frontend URL before submission.
 
-To learn more about Next.js, take a look at the following resources:
+## Requirements
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Node.js 20 or later and npm
+- A MongoDB connection string
+- Google OAuth credentials (and GitHub OAuth credentials if enabling GitHub sign-in)
+- Stripe test-mode secret key, Premium price ID, and webhook secret
+- ImgBB API key
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Environment variables
 
-## Deploy on Vercel
+Copy `.env.example` to `.env.local` and set values locally. Never commit `.env`, `.env.local`, or real credentials.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The backend also needs its own `.env` based on `../WedPlan-A9-Backend/.env.example`. Configure its `FRONTEND_URL_LOCAL`, `FRONTEND_URL_VERCEL`, `MONGODB_URI`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `STRIPE_PREMIUM_PRICE_ID` values as applicable.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Run locally
+
+1. Start the backend from `../WedPlan-A9-Backend`:
+
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+2. In this frontend directory, create `.env.local` from `.env.example`, set the required values, then install and start Next.js:
+
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+3. Open [http://localhost:3000](http://localhost:3000). The backend defaults to port `5000`.
+
+## Available scripts
+
+- `npm run dev` — start the development server
+- `npm run build` — create a production build
+- `npm run start` — serve the production build
+- `npm run lint` — run ESLint
+
+## Stripe webhook
+
+Configure Stripe to send subscription events to the backend webhook endpoint at `/api/payments/webhook`. Premium access is changed only after the backend verifies the webhook signature. Use Stripe test mode for local development.
