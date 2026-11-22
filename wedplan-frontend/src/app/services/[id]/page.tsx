@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import BookingCard from "@/components/services/BookingCard";
-
+import { getCurrentUser } from "@/lib/getCurrentUser";
 
 type Service = {
     _id: string;
@@ -46,16 +46,18 @@ async function getService(id: string): Promise<Service | null> {
 
 const ServiceDetailsPage = async ({ params }: Props) => {
     const { id } = await params;
-    const service = await getService(id);
+
+    const [service, user] = await Promise.all([
+        getService(id),
+        getCurrentUser(),
+    ]);
 
     if (!service) {
         notFound();
     }
 
-
-
     return (
-        <div className="mx-auto max-w-5xl px-4 py-10 space-y-8">
+        <div className="mx-auto max-w-5xl space-y-8 px-4 py-10">
 
             {/* Service Overview */}
             <div className="grid items-stretch gap-2 md:grid-cols-2">
@@ -118,18 +120,18 @@ const ServiceDetailsPage = async ({ params }: Props) => {
                 </div>
             </div>
 
-            {/* Booking Section */}
-            <div className="mx-auto w-full max-w-2xl">
-                <BookingCard
-                    serviceId={service._id}
-                    price={service.price}
-                />
-            </div>
+            {/* Booking Section - Customers Only */}
+            {user?.role === "Customer" && (
+                <div className="mx-auto w-full max-w-2xl">
+                    <BookingCard
+                        serviceId={service._id}
+                        price={service.price}
+                    />
+                </div>
+            )}
 
         </div>
     );
-
-
 };
 
 export default ServiceDetailsPage;

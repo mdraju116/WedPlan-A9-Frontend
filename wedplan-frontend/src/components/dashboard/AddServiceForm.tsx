@@ -34,6 +34,7 @@ const AddServiceForm = () => {
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState("");
     const [saving, setSaving] = useState(false);
+    const [limitReached, setLimitReached] = useState(false);
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -120,6 +121,12 @@ const AddServiceForm = () => {
 
             const result = await response.json();
 
+            // Check Free Service Limit
+            if (response.status === 403) {
+                setLimitReached(true);
+                return;
+            }
+
             if (!response.ok) {
                 throw new Error(
                     result.message || "Failed to create service"
@@ -145,6 +152,30 @@ const AddServiceForm = () => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-5">
+
+            {/* Premium Upgrade Message */}
+            {limitReached && (
+                <div className="space-y-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-5">
+                    <div>
+                        <h3 className="font-semibold text-amber-600">
+                            Free Service Limit Reached
+                        </h3>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            You have already added 3 free services.
+                            Upgrade to Premium to add unlimited services.
+                        </p>
+                    </div>
+
+                    <Button
+                        type="button"
+                        className="w-full"
+                        onClick={() => router.push("/checkout")}
+                    >
+                        Upgrade to Premium — $20/month
+                    </Button>
+                </div>
+            )}
+
             <div className="space-y-2">
                 <Label htmlFor="title">Service Name</Label>
                 <Input
@@ -245,7 +276,10 @@ const AddServiceForm = () => {
             </div>
 
             <div className="flex justify-end border-t pt-5">
-                <Button type="submit" disabled={saving}>
+                <Button
+                    type="submit"
+                    disabled={saving || limitReached}
+                >
                     <Save className="size-4" />
                     {saving ? "Saving..." : "Add Service"}
                 </Button>

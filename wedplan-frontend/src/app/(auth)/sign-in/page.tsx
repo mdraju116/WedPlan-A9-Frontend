@@ -12,6 +12,9 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { SocialSignInButtons } from "@/components/auth/Social-signIn-buttons";
 import { toast } from "react-toastify";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
+
 
 export default function SignInPage() {
     const router = useRouter();
@@ -21,6 +24,20 @@ export default function SignInPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    
+
+    const searchParams = useSearchParams();
+    const toastShown = useRef(false);
+
+    useEffect(() => {
+        if (
+            searchParams.get("message") === "login-required" &&
+            !toastShown.current
+        ) {
+            toastShown.current = true;
+            toast.info("Please sign in to access this page.");
+        }
+    }, [searchParams]);
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -61,7 +78,7 @@ export default function SignInPage() {
         }
     };
 
-    
+
 
 
     return (
@@ -136,7 +153,7 @@ export default function SignInPage() {
                 >
                     {loading ? "Signing in..." : "Sign In"}
                 </Button>
-                <SocialSignInButtons/>
+                <SocialSignInButtons />
 
                 {/* Sign Up Link */}
                 <p className="text-center text-sm text-muted-foreground">

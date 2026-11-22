@@ -1,10 +1,20 @@
+
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { stripe } from "@/lib/stripe";
-import { getCurrentUser } from "@/lib/getCurrentUser";
+import { auth } from "@/lib/auth";
 
 export async function POST() {
     try {
-        const user = await getCurrentUser();
+        // Get fresh user session without cookie cache
+        const session = await auth.api.getSession({
+            headers: await headers(),
+            query: {
+                disableCookieCache: true,
+            },
+        });
+
+        const user = session?.user;
 
         if (!user) {
             return NextResponse.json(
@@ -13,13 +23,15 @@ export async function POST() {
             );
         }
 
-        if (user.role !== "Customer") {
+        // Allow only Customers and Vendors
+        if (user.role !== "Customer" && user.role !== "Vendor") {
             return NextResponse.json(
-                { error: "Only customers can purchase Premium" },
+                { error: "Only customers and vendors can purchase Premium" },
                 { status: 403 }
             );
         }
 
+        // Check active subscription
         if (
             user.subscriptionPlan === "Premium" &&
             user.subscriptionExpiresAt &&
@@ -38,7 +50,7 @@ export async function POST() {
             throw new Error("Stripe configuration is missing");
         }
 
-        const session = await stripe.checkout.sessions.create({
+        const sessionData = await stripe.checkout.sessions.create({
             mode: "subscription",
 
             line_items: [
@@ -65,11 +77,11 @@ export async function POST() {
             cancel_url: `${appUrl}/checkout?canceled=true`,
         });
 
-        if (!session.url) {
+        if (!sessionData.url) {
             throw new Error("Checkout URL unavailable");
         }
 
-        return NextResponse.redirect(session.url, 303);
+        return NextResponse.redirect(sessionData.url, 303);
 
     } catch (error) {
         console.error("Checkout error:", error);

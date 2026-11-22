@@ -19,11 +19,9 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/profile-info",
-    "/category-details/:path*",//for dynamic path
-    "/service-details/:path*",  
-	
-	
-  ],
+    matcher: [
+        "/profile",
+        "/dashboard",
+        "/services/:id",
+    ],
 };
