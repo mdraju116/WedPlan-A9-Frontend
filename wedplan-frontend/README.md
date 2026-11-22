@@ -1,70 +1,124 @@
 # WedPlan
 
-WedPlan is a wedding planning marketplace where customers browse vendors and request bookings, vendors manage service listings and booking requests, and admins review marketplace activity.
+WedPlan is a wedding planning marketplace that helps couples discover wedding professionals and request bookings. Vendors can manage services and booking requests, while administrators review listings, manage users, and monitor subscriptions and payments.
 
-## Features
+## Live Website Link
 
-- Browse and search approved wedding services by name, category, and location; sort by price.
-- Review service details and submit booking requests with an event date and location.
-- Customer, vendor, and admin dashboards with role-specific access.
-- Vendor service submissions, admin moderation, and Premium subscriptions through Stripe Checkout.
+[https://wed-plan-a9.vercel.app](https://wed-plan-a9.vercel.app)
+
+## Important Features
+
+- Browse wedding services across six categories, with search, location filters, and price sorting.
+- View service galleries, vendor details, prices, and locations.
+- Request bookings with event dates and locations; customers can track their requests.
+- Vendor dashboard for service listings, booking requests, and subscription management.
+- Admin tools for service moderation, user management, bookings, and payment transactions.
+- Stripe Premium subscriptions, verified webhook handling, invoice recording, and subscription portal access.
+- Server-side image upload handling through ImgBB.
 - Responsive layouts, loading and empty states, notifications, and reduced-motion-aware homepage transitions.
 
-## Technology
+## Technology Stack
 
-- Next.js 16 App Router, React 19, TypeScript
-- Tailwind CSS 4 and shadcn/ui
-- Better Auth with MongoDB
-- Express 5, MongoDB, JWT verification
-- Stripe Checkout and verified webhooks
-- ImgBB image hosting through a server-side upload route
-- Motion for homepage section transitions
+- **Frontend:** Next.js 16 App Router, React 19, TypeScript
+- **UI:** Tailwind CSS 4, shadcn/ui, Lucide icons
+- **Authentication:** Better Auth with MongoDB
+- **Backend:** Express 5, TypeScript, MongoDB, JWT verification
+- **Payments:** Stripe Checkout, Billing Portal, and webhooks
+- **Image hosting:** ImgBB
+- **Animation:** Motion
 
-## Repositories and deployment
+## Project Structure
 
-- Frontend: [WedPlan-A9-Frontend](https://github.com/mdraju116/WedPlan-A9-Frontend)
-- Backend: [WedPlan-A9-Backend](https://github.com/mdraju116/WedPlan-A9-Backend)
-- Live site: add the deployed frontend URL before submission.
+```text
+WedPlan-A9-Frontend/
+├── public/                     # Static assets
+├── src/
+│   ├── app/                    # App Router pages, layouts, and API routes
+│   │   ├── (auth)/              # Sign-in and sign-up pages
+│   │   ├── api/                 # Better Auth and image upload handlers
+│   │   ├── checkout/            # Stripe checkout and success pages
+│   │   ├── dashboard/           # Customer, vendor, and admin dashboards
+│   │   └── services/            # Service browsing and detail pages
+│   ├── components/
+│   │   ├── dashboard/           # Dashboard forms, lists, and controls
+│   │   ├── home/                # Homepage banner and sections
+│   │   ├── services/            # Service browser and booking UI
+│   │   ├── shared/              # Navbar and footer
+│   │   └── ui/                  # Shared UI components
+│   ├── hooks/                   # React hooks
+│   └── lib/                     # Auth, Stripe, tokens, and shared helpers
+├── .env.example                 # Frontend environment variable template
+└── package.json
 
-## Requirements
+WedPlan-A9-Backend/
+├── src/
+│   ├── config/                  # MongoDB and Stripe setup
+│   ├── middlewares/             # Authentication, authorization, and errors
+│   └── modules/                 # User, service, booking, dashboard, payment APIs
+├── .env.example                 # Backend environment variable template
+└── package.json
+```
+## Client and Server Repository Links
 
-- Node.js 20 or later and npm
-- A MongoDB connection string
-- Google OAuth credentials (and GitHub OAuth credentials if enabling GitHub sign-in)
-- Stripe test-mode secret key, Premium price ID, and webhook secret
-- ImgBB API key
+- **Client (frontend):** [WedPlan-A9-Frontend](https://github.com/mdraju116/WedPlan-A9-Frontend)
+- **Server (backend):** [WedPlan-A9-Backend](https://github.com/mdraju116/WedPlan-A9-Backend)
 
-## Environment variables
+## Installation Instructions
 
-Copy `.env.example` to `.env.local` and set values locally. Never commit `.env`, `.env.local`, or real credentials.
+Requirements: Node.js 20 or later, npm, MongoDB, and Stripe credentials for subscription features. Google and GitHub OAuth credentials are needed only for the enabled social sign-in providers.
 
-The backend also needs its own `.env` based on `../WedPlan-A9-Backend/.env.example`. Configure its `FRONTEND_URL_LOCAL`, `FRONTEND_URL_VERCEL`, `MONGODB_URI`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `STRIPE_PREMIUM_PRICE_ID` values as applicable.
+Clone both repositories into sibling directories:
 
-## Run locally
+```bash
+git clone https://github.com/mdraju116/WedPlan-A9-Frontend.git
+git clone https://github.com/mdraju116/WedPlan-A9-Backend.git
+```
 
-1. Start the backend from `../WedPlan-A9-Backend`:
+Install dependencies in each project:
+
+```bash
+cd WedPlan-A9-Frontend
+npm install
+
+cd ../WedPlan-A9-Backend
+npm install
+```
+
+Create local environment files from the examples:
+
+```bash
+# Frontend
+cp WedPlan-A9-Frontend/.env.example WedPlan-A9-Frontend/.env.local
+
+# Backend
+cp WedPlan-A9-Backend/.env.example WedPlan-A9-Backend/.env
+```
+
+Set the placeholder values in both files. Keep real credentials private and out of version control.
+
+## How to Run the Project Locally
+
+1. Configure the frontend `.env.local` with `NEXT_PUBLIC_SERVER_BASE_URL=http://localhost:5000`, `BETTER_AUTH_URL=http://localhost:3000`, `BETTER_AUTH_SECRET`, `MONGODB_URI`, and the required OAuth, Stripe, and ImgBB values.
+2. Configure the backend `.env` with `PORT=5000`, `FRONTEND_URL_LOCAL=http://localhost:3000`, `MONGODB_URI`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET`. Use the same Stripe mode and secret API key in both projects. Set `FRONTEND_URL_VERCEL` for the deployed frontend.
+3. Start the backend in one terminal:
 
    ```bash
-   npm install
+   cd WedPlan-A9-Backend
    npm run dev
    ```
 
-2. In this frontend directory, create `.env.local` from `.env.example`, set the required values, then install and start Next.js:
+4. Start the frontend in a second terminal:
 
    ```bash
-   npm install
+   cd WedPlan-A9-Frontend
    npm run dev
    ```
 
-3. Open [http://localhost:3000](http://localhost:3000). The backend defaults to port `5000`.
+5. Open [http://localhost:3000](http://localhost:3000).
 
-## Available scripts
+For local subscription webhooks, configure Stripe or Stripe CLI to forward events to the backend endpoint `/api/payments/webhook`. Use the signing secret for that specific endpoint as `STRIPE_WEBHOOK_SECRET`.
 
-- `npm run dev` — start the development server
-- `npm run build` — create a production build
-- `npm run start` — serve the production build
-- `npm run lint` — run ESLint
 
-## Stripe webhook
 
-Configure Stripe to send subscription events to the backend webhook endpoint at `/api/payments/webhook`. Premium access is changed only after the backend verifies the webhook signature. Use Stripe test mode for local development.
+
+

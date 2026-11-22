@@ -22,6 +22,7 @@ import {
     LogOut,
     CalendarDays,
     ChevronsUpDown,
+    CreditCard,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -168,6 +169,17 @@ const VendorSidebar = () => {
                                 >
                                     <ClipboardList />
                                     <span>Booking Requests</span>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    isActive={pathname === "/dashboard/vendor/subscription"}
+                                    tooltip="Subscription"
+                                    render={<Link href="/dashboard/vendor/subscription" />}
+                                >
+                                    <CreditCard />
+                                    <span>Subscription</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>

@@ -1,10 +1,29 @@
 import { Check, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getDashboardPaths } from "@/lib/getDashboardPaths";
+import { getServerToken } from "@/lib/access-jwt-at-server-component";
 import SubscriptionPortalButton from "@/components/dashboard/SubscriptionPortalButton";
 
 export default async function VendorSubscriptionPage() {
-    const vendor = await getDashboardPaths(["Vendor"]);
+    let vendor = await getDashboardPaths(["Vendor"]);
+    const currentPlanActive = vendor.subscriptionPlan === "Premium" && vendor.subscriptionExpiresAt && new Date(vendor.subscriptionExpiresAt) > new Date();
+
+    if (!currentPlanActive && process.env.NEXT_PUBLIC_SERVER_BASE_URL) {
+        try {
+            const token = await getServerToken();
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/payments/refresh-subscription`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+                cache: "no-store",
+            });
+            if (response.ok) {
+                vendor = await getDashboardPaths(["Vendor"]);
+            }
+        } catch (error) {
+            console.error("Subscription refresh error:", error);
+        }
+    }
+
     const premiumActive = vendor.subscriptionPlan === "Premium" && vendor.subscriptionExpiresAt && new Date(vendor.subscriptionExpiresAt) > new Date();
 
     return (

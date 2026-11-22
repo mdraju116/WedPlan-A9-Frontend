@@ -17,7 +17,7 @@ const galleryImages = [
         title: "Timeless Celebrations",
     },
     {
-        src: "https://images.unsplash.com/photo-1519225421980-888cb0c0",
+        src: "https://images.unsplash.com/photo-1519741497674-611481863552",
         alt: "Wedding floral decoration",
         title: "Dreamy Decorations",
     },

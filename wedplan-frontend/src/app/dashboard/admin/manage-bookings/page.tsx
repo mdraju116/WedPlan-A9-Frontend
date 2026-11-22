@@ -24,8 +24,9 @@ type BookingStatus =
 type Booking = {
     _id: string;
     customerName: string;
-    vendorName: string;
+    vendorName?: string;
     serviceTitle: string;
+    createdAt?: string;
     eventDate: string;
     eventLocation?: string;
     amount: number;
@@ -165,48 +166,53 @@ const ManageBookingsPage = () => {
             </div>
 
             <div className="overflow-x-auto rounded-xl border">
-                <table className="w-full min-w-225 text-sm">
-                    <thead className="bg-muted/50">
-                        <tr className="text-left">
-                            <th className="p-4">Customer</th>
-                            <th className="p-4">Service</th>
-                            <th className="p-4">Vendor</th>
-                            <th className="p-4">Event Date</th>
-                            <th className="p-4">Event Location</th>
-                            <th className="p-4">Amount</th>
-                            <th className="p-4">Status</th>
-                            <th className="p-4">Update Status</th>
+                <table className="w-full min-w-[1000px] table-fixed text-left text-xs">
+                    <thead>
+                        <tr className="border-b bg-muted/40 text-[10px] uppercase tracking-wide text-muted-foreground">
+                            <th scope="col" className="px-2 py-3 font-medium">Customer</th>
+                            <th scope="col" className="px-2 py-3 font-medium">Service</th>
+                            <th scope="col" className="px-2 py-3 font-medium">Vendor</th>
+                            <th scope="col" className="px-2 py-3 font-medium">Requested</th>
+                            <th scope="col" className="px-2 py-3 font-medium">Event date</th>
+                            <th scope="col" className="px-2 py-3 font-medium">Location</th>
+                            <th scope="col" className="px-2 py-3 font-medium">Amount</th>
+                            <th scope="col" className="px-2 py-3 font-medium">Status</th>
+                            <th scope="col" className="px-2 py-3 font-medium">Update</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         {bookings.map((booking) => (
-                            <tr key={booking._id} className="border-t">
-                                <td className="p-4">
+                            <tr key={booking._id} className="border-b last:border-0">
+                                <td className="break-words px-2 py-3">
                                     {booking.customerName}
                                 </td>
 
-                                <td className="p-4 font-medium">
+                                <td className="break-words px-2 py-3 font-medium">
                                     {booking.serviceTitle}
                                 </td>
 
-                                <td className="p-4">
-                                    {booking.vendorName}
+                                <td className="break-words px-2 py-3">
+                                    {booking.vendorName || "—"}
                                 </td>
 
-                                <td className="p-4 whitespace-nowrap">
+                                <td className="whitespace-nowrap px-2 py-3 text-muted-foreground">
+                                    {booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : "—"}
+                                </td>
+
+                                <td className="whitespace-nowrap px-2 py-3 text-muted-foreground">
                                     {new Date(
                                         booking.eventDate
                                     ).toLocaleDateString()}
                                 </td>
 
-                                <td className="p-4">{booking.eventLocation || "—"}</td>
+                                <td className="break-words px-2 py-3">{booking.eventLocation || "—"}</td>
 
-                                <td className="p-4 whitespace-nowrap">
-                                    ৳{booking.amount.toLocaleString()}
+                                <td className="whitespace-nowrap px-2 py-3">
+                                    ৳{booking.amount.toLocaleString("en-BD")}
                                 </td>
 
-                                <td className="p-4">
+                                <td className="px-2 py-3">
                                     <Badge
                                         variant={getStatusVariant(booking.status)}
                                     >
@@ -214,7 +220,7 @@ const ManageBookingsPage = () => {
                                     </Badge>
                                 </td>
 
-                                <td className="p-4">
+                                <td className="px-2 py-3">
                                     <Select
                                         value={booking.status}
                                         onValueChange={(value) =>
@@ -225,7 +231,7 @@ const ManageBookingsPage = () => {
                                         }
                                         disabled={updatingId === booking._id}
                                     >
-                                        <SelectTrigger className="w-35">
+                                        <SelectTrigger className="h-8 w-28 px-2 text-xs">
                                             {updatingId === booking._id ? (
                                                 <Loader2 className="size-4 animate-spin" />
                                             ) : (
@@ -256,7 +262,7 @@ const ManageBookingsPage = () => {
                         {bookings.length === 0 && (
                             <tr>
                                 <td
-                                    colSpan={8}
+                                    colSpan={9}
                                     className="p-8 text-center text-muted-foreground"
                                 >
                                     No bookings found.
