@@ -1,8 +1,9 @@
 
 import { headers } from "next/headers";
-import { auth } from "./auth";
+import { auth, ensureAuthDbConnection } from "./auth";
 
 export const getServerToken = async () => {
+    await ensureAuthDbConnection();
     const fetchToken = await auth.api.getToken({
         headers: await headers(),
     });

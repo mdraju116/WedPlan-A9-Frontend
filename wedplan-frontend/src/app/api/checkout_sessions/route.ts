@@ -2,10 +2,11 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { stripe } from "@/lib/stripe";
-import { auth } from "@/lib/auth";
+import { auth, ensureAuthDbConnection } from "@/lib/auth";
 
 export async function POST() {
     try {
+        await ensureAuthDbConnection();
         // Get fresh user session without cookie cache
         const session = await auth.api.getSession({
             headers: await headers(),
