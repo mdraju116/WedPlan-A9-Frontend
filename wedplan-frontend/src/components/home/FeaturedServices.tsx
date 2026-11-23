@@ -110,7 +110,7 @@ const FeaturedServices = async () => {
                                             <h3 className="min-w-0 flex-1 line-clamp-1 font-serif text-xl text-[#302820] transition-colors group-hover:text-[#B49360]">
                                                 {service.title}
                                             </h3>
-                                            <span className="max-w-[48%] shrink-0 rounded-full border border-[#E9D8BD] bg-[#FAF4E9] px-3 py-1 text-right text-xs font-semibold leading-4 text-[#8D7048]">
+                                            <span className="max-w-[55%] shrink-0 whitespace-nowrap rounded-full border border-[#E9D8BD] bg-[#FAF4E9] px-2.5 py-1 text-center text-[11px] font-semibold leading-4 text-[#8D7048]">
                                                 {service.category}
                                             </span>
                                         </div>

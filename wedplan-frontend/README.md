@@ -30,7 +30,64 @@ WedPlan is a wedding planning marketplace where customers discover wedding profe
 - [Backend](https://github.com/mdraju116/WedPlan-A9-Backend)
 
 The frontend expects the backend repository to run as a separate service.
+## Project layout
 
+```text
+WedPlan-A9-Frontend/
+├── public/
+│   ├── assets/                     Logos and other static assets
+│   └── *.svg                      Static icons
+├── src/
+│   ├── app/                        Next.js App Router
+│   │   ├── (auth)/                 Sign-in and sign-up pages
+│   │   ├── api/
+│   │   │   ├── auth/[...all]/      Better Auth handler
+│   │   │   ├── checkout_sessions/  Stripe Checkout session creation
+│   │   │   └── upload/image/       Server-side ImgBB image upload
+│   │   ├── checkout/               Checkout and subscription success pages
+│   │   ├── dashboard/
+│   │   │   ├── admin/              Admin pages and management tools
+│   │   │   ├── customer/           Customer profile, bookings, and subscription
+│   │   │   └── vendor/             Vendor profile, services, and bookings
+│   │   ├── services/               Service listing and [id] detail pages
+│   │   ├── globals.css             Tailwind theme and global styles
+│   │   ├── layout.tsx              Root layout and shared site chrome
+│   │   ├── loading.tsx              Global loading UI
+│   │   ├── not-found.tsx            Not-found UI
+│   │   └── page.tsx                 Homepage
+│   ├── components/
+│   │   ├── auth/                   Authentication UI
+│   │   ├── dashboard/              Dashboard forms, sidebars, and tools
+│   │   ├── home/                   Homepage sections
+│   │   ├── services/               Service browsing, booking, and image gallery
+│   │   ├── shared/                 Navbar and footer
+│   │   └── ui/                     Reusable shadcn/ui components
+│   ├── hooks/                      Shared React hooks
+│   ├── lib/                        Auth, tokens, uploads, Stripe, and helpers
+│   └── proxy.ts                    Request-time optimistic redirects
+├── .env.example                    Frontend environment variable template
+├── next.config.ts                  Next.js and remote image configuration
+├── package.json                    Frontend scripts and dependencies
+└── tsconfig.json                   TypeScript and import alias configuration
+```
+
+The Express API is maintained and deployed from the separate sibling repository:
+
+```text
+WedPlan-A9-Backend/
+└── src/
+    ├── app.ts                      Express app, CORS, and route mounting
+    ├── server.ts                   Local server startup and database connection
+    ├── config/                     MongoDB and Stripe configuration
+    ├── middlewares/                Authentication, role checks, and errors
+    ├── modules/
+    │   ├── booking/                Booking routes, controllers, and services
+    │   ├── dashboard/              Role-specific dashboard endpoints
+    │   ├── payment/                Stripe checkout, subscriptions, and webhooks
+    │   ├── service/                 Service listings and moderation
+    │   └── user/                   User profiles and administration
+    └── types/                      Express type extensions
+```
 ## Local setup
 
 ### Requirements
@@ -104,18 +161,4 @@ Run from `WedPlan-A9-Frontend`:
 | `npm run start` | Serve the production build |
 | `npm run lint` | Run ESLint |
 
-## Project layout
 
-```text
-src/
-  app/          App Router pages, layouts, and API routes
-    (auth)/     Sign-in and sign-up
-    api/        Better Auth and image upload handlers
-    checkout/   Stripe checkout and success pages
-    dashboard/  Customer, vendor, and admin areas
-    services/   Service browsing and detail pages
-  components/   Dashboard, home, service, shared, and UI components
-  hooks/        React hooks
-  lib/          Authentication, tokens, Stripe, and shared helpers
-public/         Static assets, including logos and icons
-```

@@ -1,11 +1,11 @@
 
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import BookingCard from "@/components/services/BookingCard";
+import ServiceImageGallery from "@/components/services/ServiceImageGallery";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 
 type Service = {
@@ -61,7 +61,9 @@ const ServiceDetailsPage = async ({ params }: Props) => {
         notFound();
     }
 
-    const serviceImages = (service.images?.length ? service.images : [service.image]).filter(Boolean).slice(0, 3);
+    const serviceImages = (service.images?.length ? service.images : [service.image]).filter(
+        (image): image is string => typeof image === "string" && image.length > 0,
+    );
 
     return (
         <div className="mx-auto max-w-5xl space-y-8 px-4 py-10">
@@ -75,16 +77,10 @@ const ServiceDetailsPage = async ({ params }: Props) => {
             <div className="grid items-stretch gap-4 md:grid-cols-2">
 
                 {/* Service Image */}
-                <div className="grid h-80 grid-cols-2 grid-rows-2 gap-2 md:h-[34rem]">
-                    {serviceImages.map((src, index) => (
-                        <div key={`${src}-${index}`} className={`relative min-h-0 overflow-hidden rounded-xl bg-muted ${index === 0 ? (serviceImages.length === 1 ? "col-span-2 row-span-2" : "row-span-2") : serviceImages.length === 2 ? "row-span-2" : ""}`}>
-                            <Image src={src} alt={`${service.title} photo ${index + 1}`} fill priority={index === 0} className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
-                        </div>
-                    ))}
-                </div>
+                <ServiceImageGallery key={service._id} images={serviceImages} serviceTitle={service.title} />
 
                 {/* Service Details */}
-                <div className="flex flex-col justify-center overflow-y-auto rounded-2xl border border-amber-200/60 bg-amber-50/50 p-6 shadow-sm md:h-[34rem] md:p-8">
+                <div className="flex flex-col justify-center rounded-2xl border border-amber-200/60 bg-amber-50/50 p-6 shadow-sm md:p-8">
                     <Badge
                         variant="secondary"
                         className="mb-4 w-fit bg-amber-100 text-amber-800"
