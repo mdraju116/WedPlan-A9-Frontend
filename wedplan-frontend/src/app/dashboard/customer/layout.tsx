@@ -1,10 +1,10 @@
 import {
     SidebarProvider,
     SidebarInset,
-    SidebarTrigger,
 } from "@/components/ui/sidebar";
 
 import CustomerSidebar from "@/components/dashboard/CustomerSidebar";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { getDashboardPaths } from "@/lib/getDashboardPaths";
 
 export default async function CustomerLayout({
@@ -19,9 +19,7 @@ export default async function CustomerLayout({
             <CustomerSidebar />
 
             <SidebarInset>
-                <header className="flex h-14 items-center border-b px-4">
-                    <SidebarTrigger />
-                </header>
+                <DashboardHeader title="Customer Dashboard" />
 
                 <main className="flex-1 p-6">
                     {children}

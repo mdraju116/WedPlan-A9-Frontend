@@ -17,6 +17,7 @@ import {
     LayoutDashboard,
     Search,
     CalendarDays,
+    CreditCard,
     Settings,
     LogOut,
 } from "lucide-react";
@@ -53,17 +54,9 @@ const CustomerSidebar = () => {
     };
 
     return (
-        <Sidebar collapsible="icon">
+        <Sidebar collapsible="icon" className="top-20 h-[calc(100svh-5rem)]">
             {/* 1 */}
             <SidebarHeader>
-                {/* WedPlan Branding */}
-                <div className="flex items-center gap-2 px-2 py-2 group-data-[collapsible=icon]:justify-center">
-                    <span className="text-xl font-bold text-primary group-data-[collapsible=icon]:hidden">
-                        WedPlan
-                    </span>
-                    <CalendarDays className="size-6 shrink-0 text-primary" />
-                </div>
-
                 {/* Customer Account Card */}
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -154,6 +147,17 @@ const CustomerSidebar = () => {
                                 >
                                     <CalendarDays />
                                     <span>My Bookings</span>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    tooltip="Subscription"
+                                    isActive={pathname.startsWith("/dashboard/customer/subscription")}
+                                    render={<Link href="/dashboard/customer/subscription" />}
+                                >
+                                    <CreditCard />
+                                    <span>Subscription</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>

@@ -71,7 +71,7 @@ const AdminDashboard = async () => {
                     <p className="text-sm text-muted-foreground">No bookings found.</p>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full min-w-[920px] table-fixed text-left text-xs">
+                        <table className="w-full min-w-230 table-fixed text-left text-xs">
                             <thead>
                                 <tr className="border-b bg-muted/40 text-[10px] uppercase tracking-wide text-muted-foreground">
                                     <th scope="col" className="px-2 py-3 font-medium">Customer</th>
@@ -87,14 +87,14 @@ const AdminDashboard = async () => {
                             <tbody>
                                 {data.recentBookings.map((booking) => (
                                     <tr key={booking._id} className="border-b last:border-0">
-                                        <td className="break-words px-2 py-3">{booking.customerName}</td>
-                                        <td className="break-words px-2 py-3 font-medium">{booking.serviceTitle}</td>
-                                        <td className="break-words px-2 py-3">{booking.vendorName || "—"}</td>
+                                        <td className="wrap-break-word px-2 py-3">{booking.customerName}</td>
+                                        <td className="wrap-break-word px-2 py-3 font-medium">{booking.serviceTitle}</td>
+                                        <td className="wrap-break-word px-2 py-3">{booking.vendorName || "—"}</td>
                                         <td className="whitespace-nowrap px-2 py-3 text-muted-foreground">
                                             {booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : "—"}
                                         </td>
                                         <td className="whitespace-nowrap px-2 py-3 text-muted-foreground">{new Date(booking.eventDate).toLocaleDateString()}</td>
-                                        <td className="break-words px-2 py-3">{booking.eventLocation || "—"}</td>
+                                        <td className="wrap-break-word px-2 py-3">{booking.eventLocation || "—"}</td>
                                         <td className="whitespace-nowrap px-2 py-3 font-medium">
                                             ৳{booking.amount.toLocaleString("en-BD")}
                                         </td>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Heart, Mail, MapPin } from "lucide-react";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
 
@@ -19,48 +20,30 @@ const footerLinks = {
 
 export default function Footer() {
     return (
-        <footer className="bg-[#241F1B] px-6 pt-16 text-[#D1C8BE] md:px-12 lg:px-20">
-            <div className="mx-auto grid max-w-7xl gap-12 pb-12 md:grid-cols-2 lg:grid-cols-4">
+        <footer className="bg-[#241F1B] px-6 pt-10 text-[#D1C8BE] md:px-12 lg:px-20">
+            <div className="mx-auto grid max-w-7xl gap-8 pb-8 md:grid-cols-2 lg:grid-cols-4">
                 <div>
                     <Link
                         href="/"
-                        className="font-serif text-3xl font-semibold text-[#F8F5F0]"
+                        aria-label="WedPlan home"
+                        className="relative block h-20 w-56"
                     >
-                        Wed<span className="text-[#C5A16E]">Plan</span>
+                        <Image src="/assets/wedplan-footer-logo-light.png" alt="WedPlan — Plan, Book, Celebrate" fill sizes="224px" className="object-contain object-left" />
                     </Link>
 
-                    <p className="mt-5 max-w-64 text-sm leading-7 text-[#A99F95]">
+                    <p className="mt-3 max-w-64 text-sm leading-6 text-[#A99F95]">
                         Bringing your wedding dreams to life with trusted
                         professionals and effortless planning.
                     </p>
 
-                    <div className="mt-6 flex gap-4">
-                        <Link
-                            href="https://www.instagram.com/"
-                            aria-label="Instagram"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="transition-colors hover:text-[#D5B783]"
-                        >
-                            <FaInstagram size={19} />
-                        </Link>
-                        <Link
-                            href="https://www.facebook.com/"
-                            aria-label="Facebook"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="transition-colors hover:text-[#D5B783]"
-                        >
-                            <FaFacebookF size={19} />
-                        </Link>
-                    </div>
+
                 </div>
 
                 <div>
-                    <h3 className="mb-6 font-serif text-lg text-[#F8F5F0]">
+                    <h3 className="mb-4 font-serif text-lg text-[#F8F5F0]">
                         Explore
                     </h3>
-                    <ul className="space-y-4 text-sm">
+                    <ul className="space-y-3 text-sm">
                         {footerLinks.explore.map((link) => (
                             <li key={link.label}>
                                 <Link
@@ -75,10 +58,10 @@ export default function Footer() {
                 </div>
 
                 <div>
-                    <h3 className="mb-6 font-serif text-lg text-[#F8F5F0]">
+                    <h3 className="mb-4 font-serif text-lg text-[#F8F5F0]">
                         Services
                     </h3>
-                    <ul className="space-y-4 text-sm">
+                    <ul className="space-y-3 text-sm">
                         {footerLinks.categories.map((link) => (
                             <li key={link.label}>
                                 <Link
@@ -93,7 +76,7 @@ export default function Footer() {
                 </div>
 
                 <div>
-                    <h3 className="mb-6 font-serif text-lg text-[#F8F5F0]">
+                    <h3 className="mb-4 font-serif text-lg text-[#F8F5F0]">
                         Get in Touch
                     </h3>
 
@@ -107,10 +90,31 @@ export default function Footer() {
                             Bangladesh
                         </p>
                     </div>
+                    <div className="mt-4 flex gap-4">
+                         <Link
+                            href="https://www.facebook.com/"
+                            aria-label="Facebook"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="transition-colors hover:text-[#D5B783]"
+                        >
+                            <FaFacebookF size={19} />
+                        </Link>
+                        <Link
+                            href="https://www.instagram.com/"
+                            aria-label="Instagram"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="transition-colors hover:text-[#D5B783]"
+                        >
+                            <FaInstagram size={19} />
+                        </Link>
+                       
+                    </div>
                 </div>
             </div>
 
-            <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 border-t border-white/10 py-6 text-center text-xs text-[#8F857B] sm:flex-row sm:text-left">
+            <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 border-t border-white/10 py-4 text-center text-xs text-[#8F857B] sm:flex-row sm:text-left">
                 <p>
                     © {new Date().getFullYear()} WedPlan. All rights reserved.
                 </p>

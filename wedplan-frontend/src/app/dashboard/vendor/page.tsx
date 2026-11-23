@@ -2,7 +2,6 @@ import {
     BriefcaseBusiness,
     CalendarDays,
     Clock,
-    DollarSign,
     ArrowRight,
 } from "lucide-react";
 
@@ -26,6 +25,7 @@ type RecentBooking = {
     _id: string;
     customerName: string;
     serviceTitle: string;
+    createdAt?: string;
     eventDate: string;
     amount: number;
     status: "Pending" | "Accepted" | "Rejected" | "Cancelled" | "Completed";
@@ -40,6 +40,10 @@ type VendorDashboardData = {
     };
     recentBookings: RecentBooking[];
 };
+
+function TakaIcon({ className }: { className?: string }) {
+    return <span aria-hidden="true" className={`inline-flex items-center justify-center font-semibold ${className ?? ""}`}>৳</span>;
+}
 
 
 export default async function VendorDashboard() {
@@ -92,7 +96,7 @@ export default async function VendorDashboard() {
             title: "Total Earnings",
             value: `৳${stats.totalEarnings.toLocaleString("en-BD")}`,
             description: "Total accepted earnings",
-            icon: DollarSign,
+            icon: TakaIcon,
         },
     ];
 
@@ -158,15 +162,16 @@ export default async function VendorDashboard() {
                 </div>
 
                 <div className="rounded-xl border">
-                    <Table>
+                    <Table className="min-w-[740px] table-fixed">
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Booking ID</TableHead>
-                                <TableHead>Customer</TableHead>
-                                <TableHead>Service</TableHead>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Amount</TableHead>
-                                <TableHead>Status</TableHead>
+                                <TableHead className="w-[13%]">Booking ID</TableHead>
+                                <TableHead className="w-[17%]">Customer</TableHead>
+                                <TableHead className="w-[26%]">Service</TableHead>
+                                <TableHead className="w-[13%]">Booking Date</TableHead>
+                                <TableHead className="w-[13%]">Event Date</TableHead>
+                                <TableHead className="w-[11%]">Amount</TableHead>
+                                <TableHead className="w-[7%]">Status</TableHead>
                             </TableRow>
                         </TableHeader>
 
@@ -177,12 +182,22 @@ export default async function VendorDashboard() {
                                         {booking._id.slice(0, 8)}...
                                     </TableCell>
 
-                                    <TableCell>
+                                    <TableCell className="truncate" title={booking.customerName}>
                                         {booking.customerName}
                                     </TableCell>
 
-                                    <TableCell>
+                                    <TableCell className="truncate" title={booking.serviceTitle}>
                                         {booking.serviceTitle}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {booking.createdAt
+                                            ? new Date(booking.createdAt).toLocaleDateString("en-BD", {
+                                                day: "numeric",
+                                                month: "short",
+                                                year: "numeric",
+                                            })
+                                            : "—"}
                                     </TableCell>
 
                                     <TableCell>

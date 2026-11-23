@@ -26,5 +26,5 @@ export default function SubscriptionPortalButton() {
         }
     };
 
-    return <Button type="button" variant="outline" className="mt-3 w-full" onClick={openPortal} disabled={loading}>{loading ? "Opening Stripe..." : "Manage or cancel subscription"}</Button>;
+    return <Button type="button" variant="outline" className="mt-3 w-full" onClick={openPortal} disabled={loading}>{loading ? "Opening Stripe..." : "View subscription details"}</Button>;
 }

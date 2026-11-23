@@ -4,20 +4,43 @@ import { getDashboardPaths } from "@/lib/getDashboardPaths";
 import { getServerToken } from "@/lib/access-jwt-at-server-component";
 import SubscriptionPortalButton from "@/components/dashboard/SubscriptionPortalButton";
 
-export default async function VendorSubscriptionPage() {
+export default async function VendorSubscriptionPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ session_id?: string }>;
+}) {
+    const { session_id: sessionId } = await searchParams;
     let vendor = await getDashboardPaths(["Vendor"]);
-    const currentPlanActive = vendor.subscriptionPlan === "Premium" && vendor.subscriptionExpiresAt && new Date(vendor.subscriptionExpiresAt) > new Date();
+    const isPremiumActive = () => vendor.subscriptionPlan === "Premium" && vendor.subscriptionExpiresAt && new Date(vendor.subscriptionExpiresAt) > new Date();
 
-    if (!currentPlanActive && process.env.NEXT_PUBLIC_SERVER_BASE_URL) {
+    if (!isPremiumActive() && process.env.NEXT_PUBLIC_SERVER_BASE_URL) {
         try {
             const token = await getServerToken();
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/payments/refresh-subscription`, {
-                method: "POST",
-                headers: { Authorization: `Bearer ${token}` },
-                cache: "no-store",
-            });
-            if (response.ok) {
-                vendor = await getDashboardPaths(["Vendor"]);
+
+            if (sessionId) {
+                const confirmation = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/payments/confirm`, {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ sessionId }),
+                    cache: "no-store",
+                });
+                if (confirmation.ok) {
+                    vendor = await getDashboardPaths(["Vendor"]);
+                }
+            }
+
+            if (!isPremiumActive()) {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/payments/refresh-subscription`, {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${token}` },
+                    cache: "no-store",
+                });
+                if (response.ok) {
+                    vendor = await getDashboardPaths(["Vendor"]);
+                }
             }
         } catch (error) {
             console.error("Subscription refresh error:", error);
@@ -42,7 +65,7 @@ export default async function VendorSubscriptionPage() {
                     {premiumActive ? <><p className="mt-6 rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-800">Premium is active{vendor.subscriptionExpiresAt ? ` through ${new Date(vendor.subscriptionExpiresAt).toLocaleDateString()}` : ""}.</p><SubscriptionPortalButton /></> : <form action="/api/checkout_sessions" method="POST" className="mt-6"><Button type="submit" className="w-full">Upgrade to Premium</Button></form>}
                 </section>
             </div>
-            <p className="text-sm text-muted-foreground">Your subscription status changes only after the server verifies the Stripe webhook event.</p>
+            <p className="text-sm text-muted-foreground">If a recent payment has not appeared yet, this page checks Stripe again when it loads.</p>
         </div>
     );
 }

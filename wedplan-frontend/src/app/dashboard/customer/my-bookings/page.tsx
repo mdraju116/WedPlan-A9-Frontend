@@ -41,6 +41,7 @@ const MyBookingsPage = () => {
                         serviceId: string;
                         serviceTitle: string;
                         vendorName: string;
+                        createdAt?: string;
                         eventDate: string;
                         eventLocation: string;
                         amount: number;
@@ -51,7 +52,14 @@ const MyBookingsPage = () => {
                         service: booking.serviceTitle,
                         vendor: booking.vendorName,
                         eventLocation: booking.eventLocation,
-                        date: new Date(booking.eventDate).toLocaleDateString(
+                        bookingDate: booking.createdAt
+                            ? new Date(booking.createdAt).toLocaleDateString("en-BD", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                            })
+                            : "—",
+                        eventDate: new Date(booking.eventDate).toLocaleDateString(
                             "en-BD",
                             {
                                 day: "numeric",

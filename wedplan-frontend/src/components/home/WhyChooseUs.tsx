@@ -42,7 +42,7 @@ const WhyChooseUs = () => {
         <section className="bg-white px-4 py-20 sm:px-6 md:py-28 lg:px-8">
             <div className="mx-auto max-w-7xl">
 
-                <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
+                <div className="grid gap-6 lg:grid-cols-2 lg:gap-6">
 
                     {/* Left Content */}
                     <div className="lg:sticky lg:top-28 lg:self-start">

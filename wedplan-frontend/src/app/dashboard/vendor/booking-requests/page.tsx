@@ -11,7 +11,8 @@ type BookingRequest = {
     id: string;
     customer: string;
     service: string;
-    date: string;
+    bookingDate: string;
+    eventDate: string;
     eventLocation: string;
     amount: number;
     status: "Pending" | "Accepted" | "Rejected" | "Cancelled" | "Completed";
@@ -39,6 +40,7 @@ export default function BookingRequestsPage() {
                     _id: string;
                     customerName: string;
                     serviceTitle: string;
+                    createdAt?: string;
                     eventDate: string;
                     eventLocation?: string;
                     amount: number;
@@ -47,7 +49,14 @@ export default function BookingRequestsPage() {
                     id: booking._id,
                     customer: booking.customerName,
                     service: booking.serviceTitle,
-                    date: new Date(booking.eventDate).toLocaleDateString("en-BD", {
+                    bookingDate: booking.createdAt
+                        ? new Date(booking.createdAt).toLocaleDateString("en-BD", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                        })
+                        : "—",
+                    eventDate: new Date(booking.eventDate).toLocaleDateString("en-BD", {
                         day: "numeric",
                         month: "short",
                         year: "numeric",
@@ -122,37 +131,38 @@ export default function BookingRequestsPage() {
                 </div>
 
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-[1000px] table-fixed text-left text-sm">
+                    <table className="w-full min-w-225 table-fixed text-left text-sm">
                         <thead>
                             <tr className="border-b bg-muted/40 text-[11px] uppercase tracking-wide text-muted-foreground">
-                                <th scope="col" className="w-[10%] px-3 py-3 font-semibold">Booking ID</th>
-                                <th scope="col" className="w-[14%] px-3 py-3 font-semibold">Customer</th>
-                                <th scope="col" className="w-[22%] px-3 py-3 font-semibold">Service</th>
-                                <th scope="col" className="w-[17%] px-3 py-3 font-semibold">Event details</th>
-                                <th scope="col" className="w-[11%] px-3 py-3 font-semibold">Amount</th>
-                                <th scope="col" className="w-[9%] px-3 py-3 font-semibold">Status</th>
-                                <th scope="col" className="w-[17%] px-3 py-3 font-semibold">Action</th>
+                                <th scope="col" className="w-[8%] px-2 py-3 font-semibold">Booking ID</th>
+                                <th scope="col" className="w-[11%] px-2 py-3 font-semibold">Customer</th>
+                                <th scope="col" className="w-[16%] px-2 py-3 font-semibold">Service Name</th>
+                                <th scope="col" className="w-[11%] px-2 py-3 font-semibold">Booking Date</th>
+                                <th scope="col" className="w-[11%] px-2 py-3 font-semibold">Event Date</th>
+                                <th scope="col" className="w-[12%] px-2 py-3 font-semibold">Event Location</th>
+                                <th scope="col" className="w-[8%] px-2 py-3 font-semibold">Amount</th>
+                                <th scope="col" className="w-[8%] px-2 py-3 font-semibold">Status</th>
+                                <th scope="col" className="w-[15%] px-2 py-3 font-semibold">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y">
                             {loading ? (
-                                <tr><td colSpan={7} className="py-10 text-center text-muted-foreground">Loading booking requests...</td></tr>
+                                <tr><td colSpan={9} className="py-10 text-center text-muted-foreground">Loading booking requests...</td></tr>
                             ) : requests.map((request) => (
                                 <tr key={request.id} className="align-middle">
-                                    <td className="truncate px-3 py-4 text-xs font-medium" title={request.id}>{request.id.slice(0, 8)}...</td>
-                                    <td className="break-words px-3 py-4">{request.customer}</td>
-                                    <td className="break-words px-3 py-4 font-medium">{request.service}</td>
-                                    <td className="px-3 py-4">
-                                        <p className="whitespace-nowrap">{request.date}</p>
-                                        <p className="mt-0.5 truncate text-xs text-muted-foreground" title={request.eventLocation}>{request.eventLocation || "Location not listed"}</p>
-                                    </td>
+                                    <td className="truncate px-2 py-4 text-xs font-medium" title={request.id}>{request.id.slice(0, 8)}...</td>
+                                    <td className="wrap-break-word px-2 py-4">{request.customer}</td>
+                                    <td className="wrap-break-word px-2 py-4 font-medium">{request.service}</td>
+                                    <td className="whitespace-nowrap px-2 py-4 text-xs">{request.bookingDate}</td>
+                                    <td className="whitespace-nowrap px-2 py-4 text-xs">{request.eventDate}</td>
+                                    <td className="truncate px-2 py-4 text-xs text-muted-foreground" title={request.eventLocation}>{request.eventLocation || "Location not listed"}</td>
                                     <td className="whitespace-nowrap px-3 py-4 font-semibold">৳{request.amount.toLocaleString("en-BD")}</td>
-                                    <td className="px-3 py-4">
+                                    <td className="px-2 py-4">
                                         <Badge variant={request.status === "Accepted" ? "default" : request.status === "Rejected" ? "destructive" : "outline"} className="text-xs">
                                             {request.status}
                                         </Badge>
                                     </td>
-                                    <td className="px-3 py-4">
+                                    <td className="px-2 py-4">
                                         {request.status === "Pending" ? (
                                             <div className="flex flex-wrap gap-1.5">
                                                 <Button size="sm" className="h-8 px-2 text-xs" disabled={updatingId !== null} onClick={() => handleStatusChange(request.id, "Accepted")}>
@@ -169,7 +179,7 @@ export default function BookingRequestsPage() {
                                 </tr>
                             ))}
                             {!loading && requests.length === 0 && (
-                                <tr><td colSpan={7} className="py-10 text-center text-muted-foreground">No booking requests found.</td></tr>
+                                <tr><td colSpan={9} className="py-10 text-center text-muted-foreground">No booking requests found.</td></tr>
                             )}
                         </tbody>
                     </table>

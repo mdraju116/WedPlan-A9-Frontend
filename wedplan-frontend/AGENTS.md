@@ -38,6 +38,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Payments and secrets
 
 - Stripe server logic belongs in server-only code (`src/lib/stripe.ts` and route handlers). Keep `STRIPE_SECRET_KEY` and `STRIPE_PREMIUM_PRICE_ID` private; never import secret-bearing Stripe code into a Client Component.
+- Premium subscriptions are available to both `Customer` and `Vendor` accounts. Checkout success handling confirms completed sessions through the backend `/api/payments/confirm` endpoint; keep its session ownership and paid-status checks, and retain Stripe webhooks as the asynchronous fallback.
+- Customer and vendor subscription pages refresh an inactive plan from `/api/payments/refresh-subscription`. Preserve authorization for both roles, `cache: "no-store"`, and the server JWT header when changing this flow.
+- The `/api/payments/portal` route uses a read-only Stripe Billing Portal configuration. Preserve invoice history while keeping subscription cancellation, pausing, plan changes, customer updates, and payment-method edits disabled. The backend tags and reuses this configuration with `wedplan_read_only_portal` metadata.
+- Admin transaction rows are paid subscription invoices and identify the account role by joining the transaction account ID/email with `/api/users`; do not assume the legacy `vendorId` transaction field means the account is a Vendor.
 - Environment variables used by the frontend include `NEXT_PUBLIC_SERVER_BASE_URL`, `IMGBB_API_KEY`, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET`, `MONGODB_URI`, OAuth client credentials, and Stripe configuration. Read variable names from source/config only; never print, copy, or commit values from `.env` files.
 - `.env` is local configuration and must remain untracked. Update a safe example file if environment requirements change; do not add real credentials.
 

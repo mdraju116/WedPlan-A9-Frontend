@@ -21,7 +21,6 @@ import {
     Receipt,
     Settings,
     LogOut,
-    CalendarDays,
     ChevronsUpDown,
 } from "lucide-react";
 
@@ -53,16 +52,8 @@ const AdminSidebar = () => {
     };
 
     return (
-        <Sidebar collapsible="icon">
+        <Sidebar collapsible="icon" className="top-20 h-[calc(100svh-5rem)]">
             <SidebarHeader>
-                {/* WedPlan Branding */}
-                <div className="flex items-center gap-2 px-2 py-2">
-                    <CalendarDays className="size-6 shrink-0 text-primary" />
-                    <span className="text-xl font-bold text-primary">
-                        WedPlan
-                    </span>
-                </div>
-
                 {/* Admin Account Card */}
                 <SidebarMenu>
                     <SidebarMenuItem>

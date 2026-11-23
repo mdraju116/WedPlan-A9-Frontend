@@ -10,7 +10,8 @@ export type Booking = {
     serviceId: string;
     service: string;
     vendor: string;
-    date: string;
+    bookingDate: string;
+    eventDate: string;
     eventLocation: string;
     amount: number;
     status: "Pending" | "Accepted" | "Completed" | "Cancelled";
@@ -40,12 +41,13 @@ const BookingList = ({ bookings, status, onCancel, }: BookingListProps) => {
 
     return (
         <div className="overflow-x-auto">
-            <div className="min-w-212.5">
+            <div className="min-w-245">
                 {/* Column Headings */}
                 <div className="flex items-center gap-4 border-b px-4 py-3 text-sm font-semibold text-muted-foreground">
                     <div className="min-w-30 flex-1">Service Name</div>
                     <div className="min-w-30">Vendor</div>
                     <div className="min-w-30">Booking Date</div>
+                    <div className="min-w-30">Event Date</div>
                     <div className="min-w-25">Booking ID</div>
                     <div className="min-w-25">Amount</div>
                     <div className="min-w-25">Status</div>
@@ -71,7 +73,11 @@ const BookingList = ({ bookings, status, onCancel, }: BookingListProps) => {
                             </div>
 
                             <div className="min-w-30">
-                                <p className="text-sm">{booking.date}</p>
+                                <p className="text-sm">{booking.bookingDate}</p>
+                            </div>
+
+                            <div className="min-w-30">
+                                <p className="text-sm">{booking.eventDate}</p>
                             </div>
 
                             <div className="min-w-25 max-w-25">

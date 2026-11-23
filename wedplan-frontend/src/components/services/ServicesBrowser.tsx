@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Search } from "lucide-react";
@@ -59,6 +59,10 @@ export default function ServicesBrowser({
     const [category, setCategory] = useState(initialCategory);
     const [location, setLocation] = useState("");
     const [sort, setSort] = useState("recent");
+
+    useEffect(() => {
+        setCategory(initialCategory);
+    }, [initialCategory]);
 
     const categoryOptions = categories;
 

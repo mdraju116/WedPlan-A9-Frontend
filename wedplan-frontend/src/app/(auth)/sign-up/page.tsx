@@ -3,7 +3,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, ImagePlus } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useState, type FormEvent } from "react";
 import { signUp } from "@/lib/auth-client";
@@ -172,21 +171,20 @@ export default function SignUpPage() {
                     {/* Account Type */}
                     <div className="space-y-2">
                         <Label>Account Type</Label>
-                        <Select
-                            value={role}
-                            onValueChange={(value) =>
-                                setRole(value as "Customer" | "Vendor")
-                            }
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select account type" />
-                            </SelectTrigger>
-
-                            <SelectContent>
-                                <SelectItem value="Customer">Customer</SelectItem>
-                                <SelectItem value="Vendor">Vendor</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <div className="grid grid-cols-2 gap-3" role="group" aria-label="Account type">
+                            {(["Customer", "Vendor"] as const).map((accountType) => (
+                                <Button
+                                    key={accountType}
+                                    type="button"
+                                    variant={role === accountType ? "default" : "outline"}
+                                    aria-pressed={role === accountType}
+                                    onClick={() => setRole(accountType)}
+                                    className="h-20.5 w-full rounded-lg text-base"
+                                >
+                                    {accountType}
+                                </Button>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Profile Image */}

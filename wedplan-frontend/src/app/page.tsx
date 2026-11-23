@@ -6,7 +6,7 @@ import WhyChooseUs from "@/components/home/WhyChooseUs";
 import HowItWorks from "@/components/home/HowItWorks";
 import WeddingGallery from "@/components/home/WeddingGallery";
 import Testimonials from "@/components/home/Testimonials";
-import FinalCTA from "@/components/home/FinalCTA";
+// import FinalCTA from "@/components/home/FinalCTA";
 import Reveal from "@/components/home/Reveal";
 
 export default function Home() {
@@ -19,7 +19,7 @@ export default function Home() {
             <Reveal><HowItWorks /></Reveal>
             <Reveal><WeddingGallery /></Reveal>
             <Reveal><Testimonials /></Reveal>
-            <Reveal><FinalCTA /></Reveal>
+            {/* <Reveal><FinalCTA /></Reveal> */}
         </>
     );
 }
